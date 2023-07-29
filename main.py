@@ -1,4 +1,4 @@
-from ventanas import VentanaPrincipal
+from ventanaPrincipal import VentanaPrincipal
 
 ventanaPrincipal = VentanaPrincipal()
 
