@@ -1,5 +1,16 @@
 from ventanaPrincipal import VentanaPrincipal
+import subprocess
 
-ventanaPrincipal = VentanaPrincipal()
+def pushAlarma():
+    subprocess.Popen(
+        ["python","alarma.py"],
+        shell=True
+        )
 
-ventanaPrincipal.mainloop()
+if __name__  == "__main__":
+    
+    ventanaPrincipal = VentanaPrincipal()
+
+    ventanaPrincipal.mainloop()
+
+    pushAlarma()

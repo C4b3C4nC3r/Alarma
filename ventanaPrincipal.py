@@ -8,7 +8,7 @@ class VentanaPrincipal(tk.Tk):
     def __init__(self):
         super().__init__()
         self.config(bg='black')
-        self.geometry("550x300")
+        self.geometry("1200x600")
         self.title("Reloj")
 
         self.lbl1 = ttk.Label(text="Alarma",font=('Arial',20,'bold'),background="black",foreground="white")
@@ -16,6 +16,16 @@ class VentanaPrincipal(tk.Tk):
 
         self.btn_add_alarma = ttk.Button(self,text="+",command=self.openCrearAlarma)
 
+        self.lbl1.grid()
+        self.lbl2.grid()
+        self.cargarHistorial()
+        self.btn_add_alarma.grid()
+
+    def openCrearAlarma(self):
+        if not VentanaCrearAlarma.en_uso:
+            self.ventanaCrearAlarma = VentanaCrearAlarma()
+
+    def cargarHistorial(self):
         self.ventanaNotifiacion = VentanaNotificacion()
         self.ventanaNotifiacion.findHistorial()
 
@@ -27,16 +37,6 @@ class VentanaPrincipal(tk.Tk):
             etq_hora.grid()
             etq_nombre.grid()
             etq_actividad.grid()
-
-        self.lbl1.grid()
-        self.lbl2.grid()
-        self.btn_add_alarma.grid()
-
-
-    def openCrearAlarma(self):
-        if not VentanaCrearAlarma.en_uso:
-            self.ventanaCrearAlarma = VentanaCrearAlarma()
-
 
     # def printData(self):
     #     if not VentanaCrearAlarma.en_uso:

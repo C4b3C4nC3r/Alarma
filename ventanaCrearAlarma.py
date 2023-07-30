@@ -94,7 +94,7 @@ class VentanaCrearAlarma(tk.Toplevel):
         
         self.__class__.actividad = False
         self.__class__.nombre_alarma = "No definido"
-
+        
     def addAlarmaJson(self):
         alarma = {
             "h_creacion" : strftime("%H"),

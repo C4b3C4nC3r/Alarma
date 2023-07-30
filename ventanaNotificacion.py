@@ -1,4 +1,3 @@
-import tkinter as tk
 import json
 from tkinter import ttk,messagebox
 
@@ -44,7 +43,6 @@ class VentanaNotificacion():
         self.btn_descartar.grid()
         self.focus()
         self.grab_set()
-
     #add minutes
     def poponer(self):
         pass
