@@ -1,7 +1,9 @@
 import tkinter as tk
+import json
+import os
 from tkinter import ttk,filedialog
 from time import strftime
-
+from ventanaNotificacion import VentanaNotificacion
 
 class VentanaCrearAlarma(tk.Toplevel):
 
@@ -28,6 +30,9 @@ class VentanaCrearAlarma(tk.Toplevel):
     veces_alarm = 3
     nombre_alarma = "No definido"
     actividad = False
+    
+    historial = []
+    dir_historial = "historial\historialAlarma.json"
     
     def __init__(self):
 
@@ -64,8 +69,6 @@ class VentanaCrearAlarma(tk.Toplevel):
         self.cmb_posponerTiempoIntervalo.grid()
         self.cmb_posponerVeces.grid()
 
-        #guardar JSON
-
         self.focus()
         self.__class__.en_uso = True
     
@@ -76,6 +79,9 @@ class VentanaCrearAlarma(tk.Toplevel):
         self.__class__.veces_alarm = self.cmb_posponerVeces.get()
         self.__class__.nombre_alarma = self.nombreAlarma.get() if self.nombreAlarma.get() else self.__class__.nombre_alarma
         self.__class__.actividad = True
+
+        self.addAlarmaJson()
+        self.saveHistorialAlarmaJson()
 
         self.setDatos()
 
@@ -88,6 +94,40 @@ class VentanaCrearAlarma(tk.Toplevel):
         
         self.__class__.actividad = False
         self.__class__.nombre_alarma = "No definido"
+
+    def addAlarmaJson(self):
+        alarma = {
+            "h_creacion" : strftime("%H"),
+            "m_creacion" : strftime("%M"),
+            "nombre" : self.__class__.nombre_alarma,
+            "hora": self.__class__.hour_alarma,
+            "minuto":self.__class__.minute_alarma,
+            "intervalo":self.__class__.intervalor_alarma,
+            "veces":self.__class__.veces_alarm,
+            "actividad": self.__class__.actividad
+        }
+        self.__class__.historial.append(alarma)
+
+    def saveHistorialAlarmaJson(self):
+
+        if os.path.isfile(self.__class__.dir_historial):
+
+            try:
+                with open (self.__class__.dir_historial,"r") as filejson:
+                    datos_existetes = json.load(filejson)
+                
+                self.__class__.historial.extend(datos_existetes)
+
+            except FileNotFoundError:
+                VentanaNotificacion.errorFile()
+
+        # else: ya es redundante
+        #     pass 
+
+        with open (self.__class__.dir_historial,"w") as filejson:
+            json.dump(self.__class__.historial, filejson, indent=2)
+
+        self.__class__.historial = []
 
     def nuevoTono(self):
         filetypes = (("MP3 Files", "*.mp3"),)

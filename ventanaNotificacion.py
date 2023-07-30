@@ -22,3 +22,17 @@ class VentanaNotificacion(tk.Toplevel):
         self.btn_descartar.grid()
         self.focus()
         self.grab_set()
+
+
+    def ejecutarAlarma():
+        
+        from ventanaCrearAlarma import VentanaCrearAlarma
+        #verificar las alarmas:
+        dir_historial = VentanaCrearAlarma.dir_historial
+
+        print(dir_historial)
+
+        return True
+
+    def errorFile():
+        messagebox.showerror("Error Archivos","No se ha encontrado el directorio u archivos")

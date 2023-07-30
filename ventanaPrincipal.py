@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from ventanaCrearAlarma import VentanaCrearAlarma
+from ventanaNotificacion import VentanaNotificacion
+
 
 class VentanaPrincipal(tk.Tk):
     def __init__(self):
@@ -13,17 +15,26 @@ class VentanaPrincipal(tk.Tk):
         self.lbl2 = ttk.Label(text="Sonara en ...  ",font=('Arial',12),background="black",foreground="white")
 
         self.btn_add_alarma = ttk.Button(self,text="+",command=self.openCrearAlarma)
-        #self.btn_historial_alarma = ttk.Button(self,text="+",command=self.printData)
+
 
         self.lbl1.grid()
         self.lbl2.grid()
         self.btn_add_alarma.grid()
-        #self.btn_historial_alarma.grid()
+
+        #self.openNotificacion()
+
 
     def openCrearAlarma(self):
         if not VentanaCrearAlarma.en_uso:
             self.ventanaCrearAlarma = VentanaCrearAlarma()
         
+    def openNotificacion(self):
+        if VentanaNotificacion.ejecutarAlarma():
+            self.ventanNotificacion = VentanaNotificacion()
+
+    def showAlarmas(self):
+
+        pass
     # def printData(self):
     #     if not VentanaCrearAlarma.en_uso:
     #         self.ventanaCrearAlarma = VentanaCrearAlarma()
