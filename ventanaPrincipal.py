@@ -16,25 +16,28 @@ class VentanaPrincipal(tk.Tk):
 
         self.btn_add_alarma = ttk.Button(self,text="+",command=self.openCrearAlarma)
 
+        self.ventanaNotifiacion = VentanaNotificacion()
+        self.ventanaNotifiacion.findHistorial()
+
+        for alarma in self.ventanaNotifiacion.alarmas:
+            etq_hora = ttk.Label(self, text=alarma["hora"] + " : " +alarma["minuto"])
+            etq_nombre = ttk.Label(self, text= alarma["nombre"] if not alarma["nombre"] == "No definido" else "Alarma"  )
+            etq_actividad = ttk.Label(self,text= "activa" if alarma["actividad"] else "inactiva")
+
+            etq_hora.grid()
+            etq_nombre.grid()
+            etq_actividad.grid()
 
         self.lbl1.grid()
         self.lbl2.grid()
         self.btn_add_alarma.grid()
 
-        #self.openNotificacion()
-
 
     def openCrearAlarma(self):
         if not VentanaCrearAlarma.en_uso:
             self.ventanaCrearAlarma = VentanaCrearAlarma()
-        
-    def openNotificacion(self):
-        if VentanaNotificacion.ejecutarAlarma():
-            self.ventanNotificacion = VentanaNotificacion()
 
-    def showAlarmas(self):
 
-        pass
     # def printData(self):
     #     if not VentanaCrearAlarma.en_uso:
     #         self.ventanaCrearAlarma = VentanaCrearAlarma()

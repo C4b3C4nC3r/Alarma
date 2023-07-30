@@ -84,7 +84,7 @@ class VentanaCrearAlarma(tk.Toplevel):
         self.saveHistorialAlarmaJson()
 
         self.setDatos()
-
+        
     def setDatos(self):
         self.cmb1.set(self.__class__.hour)
         self.cmb2.set(self.__class__.minute)
