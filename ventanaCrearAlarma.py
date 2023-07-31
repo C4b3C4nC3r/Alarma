@@ -104,6 +104,7 @@ class VentanaCrearAlarma(tk.Toplevel):
             "minuto":self.__class__.minute_alarma,
             "intervalo":self.__class__.intervalor_alarma,
             "veces":self.__class__.veces_alarm,
+            "dir_audio":self.__class__.dirAudio,
             "actividad": self.__class__.actividad
         }
         self.__class__.historial.append(alarma)

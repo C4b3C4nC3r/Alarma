@@ -21,6 +21,8 @@ class VentanaPrincipal(tk.Tk):
         self.cargarHistorial()
         self.btn_add_alarma.grid()
 
+
+
     def openCrearAlarma(self):
         if not VentanaCrearAlarma.en_uso:
             self.ventanaCrearAlarma = VentanaCrearAlarma()
@@ -38,6 +40,7 @@ class VentanaPrincipal(tk.Tk):
             etq_nombre.grid()
             etq_actividad.grid()
 
+            
     # def printData(self):
     #     if not VentanaCrearAlarma.en_uso:
     #         self.ventanaCrearAlarma = VentanaCrearAlarma()
