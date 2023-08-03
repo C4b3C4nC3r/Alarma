@@ -10,7 +10,7 @@ def pushAlarma():
 if __name__  == "__main__":
     
     ventanaPrincipal = VentanaPrincipal()
-
+    
     ventanaPrincipal.mainloop()
 
     pushAlarma()

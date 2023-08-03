@@ -28,7 +28,7 @@ class VentanaCrearAlarma(tk.Toplevel):
     minute_alarma = 0
     intervalor_alarma = 5
     veces_alarm = 3
-    nombre_alarma = "No definido"
+    nombre_alarma = "Alarma de hoy"
     actividad = False
     
     historial = []
@@ -97,8 +97,8 @@ class VentanaCrearAlarma(tk.Toplevel):
         
     def addAlarmaJson(self):
         alarma = {
-            "h_creacion" : strftime("%H"),
-            "m_creacion" : strftime("%M"),
+            # "h_creacion" : strftime("%H"),
+            # "m_creacion" : strftime("%M"),
             "nombre" : self.__class__.nombre_alarma,
             "hora": self.__class__.hour_alarma,
             "minuto":self.__class__.minute_alarma,
