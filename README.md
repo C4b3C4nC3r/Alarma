@@ -1,6 +1,6 @@
 # Alarma
-Practica para python nivel 1
 
+Actualizamos el main con la fusion de la rama a la principal
 
 
 # to update list requirements.txt 
@@ -13,13 +13,28 @@ use `terminal` (recuerda debe de estar activo el `env`):
 
     ```
 
+Para ejecutar el programa use 
+
+    ```bash
+    
+    .\env\Scripts\activate
+
+    python main.py
+    
+    ```
 
 
-# Errores 7/26/23
+# Add 02/08/23
+- mixerAlarma.py 
+- alarma.py
 
-- El tiempo se queda paralizado una vez cumple la condicion de que llego la hora (`error visual`)
+# Errores 02/08/23
+
 - Distribucion de opciones (`error visual`)
-- (`anade los errores que veas...`)
+- Optimizacion y distribucion de clases (`error logico`)
+- la ventana notificacion se despliega dos veces, o mas dependiendo del caso (`error logico y distributivo de acciones`)...
+
+
 
 
 
