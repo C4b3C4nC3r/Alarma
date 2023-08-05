@@ -1,9 +1,9 @@
 import os
 import json
+import time
 import tkinter as tk
 from tkinter import ttk,filedialog
-import time
-
+from pygame import mixer
 class RelojAlarma():
     
     alarms = []
@@ -16,8 +16,7 @@ class RelojAlarma():
     check_boxes = []
     dir_audio = "data\d_alarm_sounds\herta singing kururing.mp3"
     dir_alarm = "data\historial\historial_alarms.json"
-    check_var = []
-
+    
     def __init__(self):
         super().__init__()
 
@@ -33,7 +32,7 @@ class RelojAlarma():
                 json.dump([], filejson, indent=2)
 
     def alarmsFrame(self, contenido_frame):
-        
+        self.check_var = []
         self.findAlarms()
         self.contenido_frame = contenido_frame
         for row, alarma in enumerate(self.__class__.alarms):
@@ -49,11 +48,12 @@ class RelojAlarma():
 
             
             check_var = tk.BooleanVar(value=alarma["activo"])
-            self.__class__.check_var.append(check_var)
+            self.check_var.append(check_var)
             check_btn = ttk.Checkbutton(
                 tarjeta,
                 text=f"Hora: {hora}\n{alarma['nombre']}",
-                variable=check_var
+                variable=check_var,
+                command=lambda indice = row: self.ignorarPorCheckAlarm(indice)
             )
             check_btn.grid(row=0, column=0, sticky="w")
 
@@ -116,15 +116,14 @@ class RelojAlarma():
 
     #Seccion de tratamiento de datos para guardar
     def saveAlarm(self):
+        #bloquea model
         self.getData()
         self.addData()
 
         if os.path.isfile(self.__class__.dir_alarm):
             try:
-                with open (self.__class__.dir_alarm,"r") as filejson:
-                    datos_existetes = json.load(filejson)
-                
-                self.__class__.alarms.extend(datos_existetes)
+                with open (self.__class__.dir_alarm,"w") as filejson:
+                    json.dump(self.__class__.alarms, filejson, indent=2)
 
             except FileNotFoundError:
                 pass
@@ -132,7 +131,7 @@ class RelojAlarma():
         with open (self.__class__.dir_alarm,"w") as filejson:
             json.dump(self.__class__.alarms, filejson, indent=2)
 
-        self.__class__.alarms = []
+        self.findAlarms()
         self.setData()
 
     def addData(self):
@@ -204,24 +203,64 @@ class RelojAlarma():
         self.__class__.dir_audio = filename
 
     #ventana que notifica la alarma
-    def createNotifAlarms(self):
+    def createNotifAlarms(self,indice):
+        nombre = self.__class__.alarms[indice]["nombre"]
+        hora = self.__class__.alarms[indice]["hora"]
+        minuto = self.__class__.alarms[indice]["minuto"]
+        audio = self.__class__.alarms[indice]["audio"]
+        hora_alarm = str(hora) + " : " + str(minuto)
+
+        self.mixer = mixer
+        self.mixer.init()
+        self.mixer.music.load(audio)
+        self.mixer.music.play(loops=3)
+        
         notif = tk.Tk()
-        notif.title("Ventana Emergente")
+        notif.title(nombre)
         notif.geometry("600x300")
 
-        #contenido o info de la alarma
-
-        ttk.Button(notif, text="Posponer",command=self.posponerAlarm).grid(column=1, row=3)
-        ttk.Button(notif, text="Ignorar",command=self.ignorarAlarm).grid(column=2,row=3)
+        ttk.Label(notif, text=nombre + "Alarma de las "+ hora_alarm).grid(column=1,row=1)
+        #en un futuro poner un gif o animation
+        ttk.Button(notif, text="Posponer",command=lambda indice = indice: self.posponerAlarm(indice)).grid(column=1, row=3)
+        ttk.Button(notif, text="Ignorar",command=lambda indice = indice: self.ignorarAlarm(indice)).grid(column=2,row=3)
 
         return notif
     #funciones de notificar la alarma
 
-    def posponerAlarm (self):
-        pass
+    def posponerAlarm (self,indice):
+        hora = self.__class__.alarms[indice]["hora"]
+        minuto = self.__class__.alarms[indice]["minuto"]
+        tiempo = self.__class__.alarms[indice]["intervalo_posponer"]
 
-    def ignorarAlarm (self):
-        pass
+        #combina los cmabiamos a segundostodo los tados
+        tiempo_s = int(hora) * 3600 + int(minuto) * 60
+        nuevo_tiempo_alarma = tiempo_s + tiempo * 60 
+
+        nueva_hora = nuevo_tiempo_alarma // 3600
+        nuevo_minuto = (nuevo_tiempo_alarma % 3600) // 60
+
+        self.__class__.alarms[indice]["hora"] = str(nueva_hora)
+        self.__class__.alarms[indice]["minuto"] = str(nuevo_minuto)
+
+        self.editarAlarm()
+        self.mixer.quit()
+        
+
+    def ignorarPorCheckAlarm (self,indice):
+        self.__class__.alarms[indice]["activo"] = self.check_var[indice].get()
+        self.editarAlarm()
+
+    def ignorarAlarm(self,indice):
+        self.__class__.alarms[indice]["activo"] = False
+        self.editarAlarm()
+        self.mixer.quit()
 
     def editarAlarm(self):
-        pass
+        try:
+            with open (self.__class__.dir_alarm,"w") as file:
+                json.dump(self.__class__.alarms, file, indent=2)
+        except FileNotFoundError:
+            pass
+        
+
+        

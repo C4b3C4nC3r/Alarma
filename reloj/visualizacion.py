@@ -13,9 +13,9 @@ class RelojVisualizador(tk.Tk):
         self.title("Reloj")
 
         self.opciones_frame = tk.Frame(self,background="black")
-        self.opciones_frame.grid(column=0, row=1)
+        self.opciones_frame.grid(column=0, row=1, padx=10, pady=10, sticky="ns")
         self.contenido_frame = tk.Frame(self,background="black")
-        self.contenido_frame.grid(column=1,row=1)
+        self.contenido_frame.grid(column=1,row=1, padx=10, pady=10, sticky="nsew")
         
         self.btn_reloj = ttk.Button(self.opciones_frame,text="Reloj",command=self.getReloj)
         self.btn_nueva_alarma = ttk.Button(self.opciones_frame,text="Nueva Alarma", command=self.getAlarmas)
@@ -33,9 +33,6 @@ class RelojVisualizador(tk.Tk):
         self.limpiarContenidoFrame()
         nuevo_contenido = ttk.Label(self.contenido_frame, text="Alarmas", background="black", foreground="white")
         nuevo_contenido.grid()
-        #aqui van el listado de alarmas
-
-        #fin listado
         self.alarma = RelojAlarma()
         self.alarma.alarmsFrame(contenido_frame=self.contenido_frame) #windows
         
