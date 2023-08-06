@@ -4,6 +4,7 @@ import time
 import tkinter as tk
 from tkinter import ttk,filedialog
 from pygame import mixer
+
 class RelojAlarma():
     
     alarms = []
@@ -22,14 +23,12 @@ class RelojAlarma():
 
     def findAlarms(self):
 
-        self.__class__.dir_alarm = "data\historial\historial_alarms.json"
-
         try:
             with open (self.__class__.dir_alarm,"r") as file:
                 self.__class__.alarms = json.load(file)
         except FileNotFoundError:
-            with open (self.__class__.dir_alarm,"w") as filejson:
-                json.dump([], filejson, indent=2)
+            with open (self.__class__.dir_alarm,"w") as file:
+                json.dump([], file, indent=2)
 
     def alarmsFrame(self, contenido_frame):
         self.check_var = []
@@ -63,7 +62,7 @@ class RelojAlarma():
     def windowCreateAlarm(self):
 
         self.modal = tk.Toplevel(self.contenido_frame)
-        self.modal.title("Ventana Emergente")
+        self.modal.title("Nueva Alarma")
         self.modal.geometry("600x500")
 
         #configuracion
@@ -245,7 +244,6 @@ class RelojAlarma():
         self.editarAlarm()
         self.mixer.quit()
         
-
     def ignorarPorCheckAlarm (self,indice):
         self.__class__.alarms[indice]["activo"] = self.check_var[indice].get()
         self.editarAlarm()

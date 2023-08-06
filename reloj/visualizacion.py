@@ -2,7 +2,7 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from reloj.alarmas import RelojAlarma
-
+from reloj.temporizador import RelojTemporizador
 class RelojVisualizador(tk.Tk):
     
     def __init__(self):
@@ -40,8 +40,8 @@ class RelojVisualizador(tk.Tk):
         self.limpiarContenidoFrame()
         nuevo_contenido = ttk.Label(self.contenido_frame, text="Temporizador", background="black", foreground="white")
         nuevo_contenido.grid()
-        #aqui van el listado de temporizador
-
+        self.temporizador = RelojTemporizador()
+        self.temporizador.temporizadorFrame(contenido_frame=self.contenido_frame) #windows
 
     def getReloj(self):
         self.limpiarContenidoFrame()
