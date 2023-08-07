@@ -1,7 +1,7 @@
 import os
 import json
 import tkinter as tk
-from tkinter import ttk,filedialog
+from tkinter import ttk
 from pygame import mixer
 
 class RelojTemporizador():
@@ -9,6 +9,7 @@ class RelojTemporizador():
     temporizador = []
     h_list = []
     ms_list = []
+    veces = 3
 
     dir_audio = "data\d_alarm_sounds\herta singing kururing.mp3"
     dir_temporizador = "data\historial\historial_temporizador.json"
@@ -25,22 +26,31 @@ class RelojTemporizador():
                 json.dump([],file,indent=2)
     
     def temporizadorFrame(self, contenido_frame):
+
         self.active_var = []
         self.findTemporizador()
         self.contenido_frame = contenido_frame
 
-        for row, temporizador in enumerate(self.__class__.temporizador):
-            hora = str(temporizador['hora']) + " : " + str(temporizador["minuto"])+":"+ str(temporizador["segundo"])
 
+        for row, temporizador in enumerate(self.__class__.temporizador):
+            hora_reloj = temporizador['hora']
+            minuto_reloj = temporizador['minuto']
+            segundo_reloj = temporizador['segundo']
+            
             tarjeta = ttk.Label (
                 self.contenido_frame,
                 borderwidth = 2,
                 relief = "solid",
-                padding = 10,
-                text= hora
+                padding = 10
             )
 
             tarjeta.grid(row= row,column=0, sticky="ew", padx=10,pady=5)
+
+            reloj_temporizador = ttk.Label(tarjeta,text=f"{hora_reloj:02d}:{minuto_reloj:02d}:{segundo_reloj:02d}")
+            reloj_temporizador.grid(row=row,column=1)
+            ttk.Button(tarjeta,text="Play",command=lambda indice = row, reloj_temporizador = reloj_temporizador : self.temporizadorPlay(indice=indice,reloj_temporizador = reloj_temporizador)).grid(row=row+1,column=1)
+            ttk.Button(tarjeta,text="Stop",command=lambda indice = row, reloj_temporizador = reloj_temporizador : self.temporizadorStop(indice=indice,reloj_temporizador=reloj_temporizador)).grid(row=row+1,column=2)
+
         #codigo to btn
         ttk.Button(self.contenido_frame,text="Nueva Temporizador", command=self.windowCreateTemporizador).grid()
 
@@ -108,16 +118,59 @@ class RelojTemporizador():
         for i in range(0,61):
             self.__class__.ms_list.append(i)
 
+    def convertionToSecond(self):
+        pass
     #ventana notificacion temporizador
     def createNotifTemporizador(self, indice):
-        pass
-    
+        #datos
+        nombre = self.__class__.temporizador[indice]["nombre"]
+        hora = self.__class__.temporizador[indice]["nombre"]
+        minuto = self.__class__.temporizador[indice]["nombre"]
+        segundo = self.__class__.temporizador[indice]["nombre"]
+        audio = self.__class__.dir_audio #predefinido
+        hora_temporizador = str(hora)+":"+str(minuto)+":"+str(segundo)
+
+        self.mixer = mixer
+        self.mixer.init()
+        self.mixer.music.load(audio)
+        self.mixer.music.play(loops= 3)
+
+        #notif
+
+        notif = tk.Tk()
+
+        notif.title(nombre)
+        notif.geometry("600x300")
+
+        ttk.Label(notif, text=nombre + "Finalizo el temporizador de "+ hora_temporizador).grid(column=1,row=1)
+        #en un futuro poner un gif o animation
+        ttk.Button(notif, text="Ok",command=lambda indice = indice: self.temporizadorStop(indice)).grid(column=2,row=3)
+
+        return notif
     #funciones visuales
-    def relojTemporizador():
-        pass
+    def relojTemporizador(self, tarjeta, indice):
+        #crea el reloj digital en cuenta hacia atras
+       pass
 
-    def temporizadorPlay():
-        pass
+    def temporizadorPlay(self,indice,reloj_temporizador):
+        if not self.__class__.temporizador[indice]["activo"]:
+            print("Iniciando cuenta regresiva")
+            reloj_temporizador.config(text="Inicio")
+            self.__class__.temporizador[indice]["activo"] = True
+            self.editarTemporizadores()
 
-    def temporizadorStop():
-        pass
+    def temporizadorStop(self, indice,reloj_temporizador):
+        if self.__class__.temporizador[indice]["activo"]:
+            print("Pausa cuenta regresiva")
+            reloj_temporizador.config(text="Pauso")
+            self.__class__.temporizador[indice]["activo"] = False
+            self.editarTemporizadores()
+
+    def editarTemporizadores(self):
+        try:
+            with open (self.__class__.dir_temporizador,"w") as file:
+                json.dump(self.__class__.temporizador, file, indent=2)
+        except FileNotFoundError:
+            pass
+
+        self.findTemporizador()

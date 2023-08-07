@@ -260,5 +260,6 @@ class RelojAlarma():
         except FileNotFoundError:
             pass
         
+        self.findAlarms()
 
         
