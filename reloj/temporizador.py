@@ -4,6 +4,8 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from pygame import mixer
+from reloj.temporizadorClass import Temporizador
+
 
 class RelojTemporizador():
     pause_reloj = False
@@ -11,7 +13,7 @@ class RelojTemporizador():
     h_list = []
     ms_list = []
     veces = 3
-
+    tarjeta_temporizador = []
     dir_audio = "data\d_alarm_sounds\herta singing kururing.mp3"
     dir_temporizador = "data\historial\historial_temporizador.json"
 
@@ -159,43 +161,38 @@ class RelojTemporizador():
 
         return notif
     #funciones visuales
-    def relojTemporizador(self, reloj_temporizador):
-        tiempo_segundos = self.tiempo_segundos
-
-        n_hora = tiempo_segundos // 3600
-        n_minuto = (tiempo_segundos % 3600) // 60
-        n_segundo = tiempo_segundos % 60
-        
-        tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
-
-        reloj_temporizador.config(text=tiempo_formato)
-
-        if self.tiempo_segundos > 0:
-            self.tiempo_segundos -=1
-            if not self.__class__.pause_reloj:
-                self.contenido_frame.after(1000,self.relojTemporizador,reloj_temporizador) #actualiza
-
-            
-
+    def relojTemporizador(self):
+        for temporizador in self.__class__.tarjeta_temporizador:
+            if not temporizador.pausado:
+                n_hora = temporizador.tiempo_segundos // 3600
+                n_minuto = (temporizador.tiempo_segundos % 3600) // 60
+                n_segundo = temporizador.tiempo_segundos % 60
+                tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
+                temporizador.reloj_temporizador.config(text=tiempo_formato)
+                if temporizador.tiempo_segundos > 0:
+                    temporizador.tiempo_segundos -= 1
+        self.contenido_frame.after(1000, self.relojTemporizador)
 
     def temporizadorPlay(self,indice,reloj_temporizador):
         if not self.__class__.temporizador[indice]["activo"]:
-            print("Iniciando cuenta regresiva")
-            self.__class__.pause_reloj = False
-
+            
             self.convertionToSecond(indice=indice)
-            self.relojTemporizador(reloj_temporizador=reloj_temporizador)
+            temporizador = Temporizador(self.tiempo_segundos,reloj_temporizador)
+            
+            self.__class__.tarjeta_temporizador.insert(indice,temporizador)
+            
+            self.relojTemporizador()
 
             self.__class__.temporizador[indice]["activo"] = True
             self.editarTemporizadores()
 
     def temporizadorStop(self, indice,reloj_temporizador):
         if self.__class__.temporizador[indice]["activo"]:
-            print("Pausa cuenta regresiva")
-            self.__class__.pause_reloj = True
+
+            self.__class__.tarjeta_temporizador[indice].pausado = True
             tiempo_reloj = time.strptime(reloj_temporizador.cget("text"), "%H:%M:%S")
             tiempo_segundos = tiempo_reloj.tm_hour * 3600 + tiempo_reloj.tm_min * 60 + tiempo_reloj.tm_sec
-            #tiempo_segundos = self.tiempo_segundos            
+
             n_hora = tiempo_segundos // 3600
             n_minuto = (tiempo_segundos % 3600) // 60
             n_segundo = tiempo_segundos % 60
@@ -206,6 +203,7 @@ class RelojTemporizador():
 
             self.__class__.temporizador[indice]["activo"] = False
             self.editarTemporizadores()
+
             reloj_temporizador.config(text=f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}")
 
     def editarTemporizadores(self):
