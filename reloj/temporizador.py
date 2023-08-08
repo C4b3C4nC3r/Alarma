@@ -9,11 +9,11 @@ from reloj.temporizadorClass import Temporizador
 
 class RelojTemporizador():
     pause_reloj = False
-    temporizador = []
+    temporizador = [] #archivo json
     h_list = []
     ms_list = []
     veces = 3
-    tarjeta_temporizador = []
+    tarjeta_temporizador = {} #archivo visual 
     dir_audio = "data\d_alarm_sounds\herta singing kururing.mp3"
     dir_temporizador = "data\historial\historial_temporizador.json"
 
@@ -162,34 +162,34 @@ class RelojTemporizador():
         return notif
     #funciones visuales
     def relojTemporizador(self):
-        for temporizador in self.__class__.tarjeta_temporizador:
-            if not temporizador.pausado:
-                n_hora = temporizador.tiempo_segundos // 3600
-                n_minuto = (temporizador.tiempo_segundos % 3600) // 60
-                n_segundo = temporizador.tiempo_segundos % 60
+        
+        for indice,relojtemporizador in self.__class__.tarjeta_temporizador.items():
+            #relojtemporizador = self.__class__.tarjeta_temporizador[index]
+            if not relojtemporizador.pausado:
+                n_hora = relojtemporizador.tiempo_segundos // 3600
+                n_minuto = (relojtemporizador.tiempo_segundos % 3600) // 60
+                n_segundo = relojtemporizador.tiempo_segundos % 60
                 tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
-                temporizador.reloj_temporizador.config(text=tiempo_formato)
-                if temporizador.tiempo_segundos > 0:
-                    temporizador.tiempo_segundos -= 1
-        self.contenido_frame.after(1000, self.relojTemporizador)
-
+                relojtemporizador.reloj_temporizador.config(text=tiempo_formato)
+                if relojtemporizador.tiempo_segundos > 0:
+                    relojtemporizador.tiempo_segundos-=1
+                    relojtemporizador.parent.after(1000,self.relojTemporizador)
+                
+                else: 
+                    relojtemporizador.pausado = True
     def temporizadorPlay(self,indice,reloj_temporizador):
         if not self.__class__.temporizador[indice]["activo"]:
             
             self.convertionToSecond(indice=indice)
-            temporizador = Temporizador(self.tiempo_segundos,reloj_temporizador)
-            
-            self.__class__.tarjeta_temporizador.insert(indice,temporizador)
-            
+            temporizador = Temporizador(self.contenido_frame,self.tiempo_segundos,reloj_temporizador)
+            self.__class__.tarjeta_temporizador[indice] = temporizador
             self.relojTemporizador()
-
             self.__class__.temporizador[indice]["activo"] = True
             self.editarTemporizadores()
 
     def temporizadorStop(self, indice,reloj_temporizador):
         if self.__class__.temporizador[indice]["activo"]:
 
-            self.__class__.tarjeta_temporizador[indice].pausado = True
             tiempo_reloj = time.strptime(reloj_temporizador.cget("text"), "%H:%M:%S")
             tiempo_segundos = tiempo_reloj.tm_hour * 3600 + tiempo_reloj.tm_min * 60 + tiempo_reloj.tm_sec
 
@@ -203,6 +203,8 @@ class RelojTemporizador():
 
             self.__class__.temporizador[indice]["activo"] = False
             self.editarTemporizadores()
+
+            del self.__class__.tarjeta_temporizador[indice]
 
             reloj_temporizador.config(text=f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}")
 
