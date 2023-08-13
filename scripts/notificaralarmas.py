@@ -9,3 +9,46 @@
 # 4. Editar el dato, y seguir con el bucle, si el caso no exista mas alamarmas solo te cierras hasta que nuevamente te ejecuten
 #   4.1 Caso (no hay mas alarmas) : este se llamara cada vez que se guarde una nueva alarma para verificar el dia y 
 #   4.2 Caso (haya mas alarmas) : las alarma que finalizo saldra de la lista, y seguira el bucle
+
+
+from reloj.alarmas import RelojAlarma
+import time
+
+reloj_alarma = RelojAlarma()
+tiempo_actual= time.localtime()
+# Días de la semana en espanol
+dias_semana_list = reloj_alarma.dia_de_la_semana
+en_uso = None
+
+while True:
+
+    reloj_alarma.findAlarms()
+    alarms = reloj_alarma.alarms
+    dia_actual = tiempo_actual.tm_wday
+    print(dia_actual)
+
+    for index, alarma in enumerate(alarms):
+        
+        hora_alarma = alarma["hora"]
+        minuto_alarma = alarma["minuto"]
+        dir_audio = alarma["audio"]
+        actividad = alarma["activo"]
+        intervalo = alarma["intervalo_posponer"]
+        dias_en_uso = alarma["veces_semana"] #lista
+
+        hora_actual = time.localtime().tm_hour
+        minuto_actual = time.localtime().tm_min
+        dia_a_buscar = dias_semana_list[dia_actual]
+
+        for dia in dias_en_uso:
+            if dia.get(dia_a_buscar, False):
+                en_uso = dia[dia_a_buscar]
+                break
+        
+        print(en_uso)
+        
+        if actividad and en_uso and hora_actual == hora_alarma and minuto_actual == minuto_alarma: 
+            notif = reloj_alarma.createNotifAlarms(indice=index)
+            notif.mainloop()
+    
+    time.sleep(30) #cada 30 ticks

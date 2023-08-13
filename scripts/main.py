@@ -10,11 +10,13 @@ para el usario.
 from reloj.visualizacion import RelojVisualizador
 import subprocess
 
+#funcion segundo plano 
 def pushAlarma():
     subprocess.Popen(
         ["python","notificaralarma.py"],
         shell=True
     )
+#funcion segundo plano
 def pushTemporizador():
     subprocess.Popen(
         ["python","notificartemporizador.py"],

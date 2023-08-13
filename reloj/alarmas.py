@@ -214,16 +214,16 @@ class RelojAlarma():
         self.mixer.music.load(audio)
         self.mixer.music.play(loops=3)
         
-        notif = tk.Tk()
-        notif.title(nombre)
-        notif.geometry("600x300")
+        self.notif = tk.Tk()
+        self.notif.title(nombre)
+        self.notif.geometry("600x300")
 
-        ttk.Label(notif, text=nombre + "Alarma de las "+ hora_alarm).grid(column=1,row=1)
+        ttk.Label(self.notif, text=nombre + "Alarma de las "+ hora_alarm).grid(column=1,row=1)
         #en un futuro poner un gif o animation
-        ttk.Button(notif, text="Posponer",command=lambda indice = indice: self.posponerAlarm(indice)).grid(column=1, row=3)
-        ttk.Button(notif, text="Ignorar",command=lambda indice = indice: self.ignorarAlarm(indice)).grid(column=2,row=3)
+        ttk.Button(self.notif, text="Posponer",command=lambda indice = indice: self.posponerAlarm(indice)).grid(column=1, row=3)
+        ttk.Button(self.notif, text="Ignorar",command=lambda indice = indice: self.ignorarAlarm(indice)).grid(column=2,row=3)
 
-        return notif
+        return self.notif
     #funciones de notificar la alarma
 
     def posponerAlarm (self,indice):
@@ -238,12 +238,13 @@ class RelojAlarma():
         nueva_hora = nuevo_tiempo_alarma // 3600
         nuevo_minuto = (nuevo_tiempo_alarma % 3600) // 60
 
-        self.__class__.alarms[indice]["hora"] = str(nueva_hora)
-        self.__class__.alarms[indice]["minuto"] = str(nuevo_minuto)
+        self.__class__.alarms[indice]["hora"] = nueva_hora
+        self.__class__.alarms[indice]["minuto"] = nuevo_minuto
 
         self.editarAlarm()
         self.mixer.quit()
-        
+        self.notif.destroy()
+
     def ignorarPorCheckAlarm (self,indice):
         self.__class__.alarms[indice]["activo"] = self.check_var[indice].get()
         self.editarAlarm()
@@ -252,6 +253,7 @@ class RelojAlarma():
         self.__class__.alarms[indice]["activo"] = False
         self.editarAlarm()
         self.mixer.quit()
+        self.notif.destroy()
 
     def editarAlarm(self):
         try:
