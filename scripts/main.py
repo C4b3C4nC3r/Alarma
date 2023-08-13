@@ -8,11 +8,30 @@ para el usario.
 
 
 from reloj.visualizacion import RelojVisualizador
+import subprocess
 
-reloj = RelojVisualizador()
+def pushAlarma():
+    subprocess.Popen(
+        ["python","notificaralarma.py"],
+        shell=True
+    )
+def pushTemporizador():
+    subprocess.Popen(
+        ["python","notificartemporizador.py"],
+        shell=True
+    )
 
-reloj.mainloop()
 
+if __name__ == "__main__":
+
+
+    reloj = RelojVisualizador()
+
+    reloj.mainloop()
+
+    #segundo plano
+    pushAlarma()
+    
 
 
 

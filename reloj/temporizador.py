@@ -183,7 +183,6 @@ class RelojTemporizador():
                 self.temporizadorStop(indice=indice,reloj_temporizador=relojtemporizador.reloj_temporizador)
                 notif.mainloop()
                 
-
     def temporizadorPlay(self,indice,reloj_temporizador):
         if not self.__class__.temporizador[indice]["activo"]:
             
@@ -216,7 +215,6 @@ class RelojTemporizador():
             reloj_temporizador.config(text=f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}")
             self.__class__.en_uso = False
 
-
     def editarTemporizadores(self):
         try:
             with open (self.__class__.dir_temporizador,"w") as file:
@@ -225,3 +223,4 @@ class RelojTemporizador():
             pass
 
         self.findTemporizador()
+

@@ -207,7 +207,7 @@ class RelojAlarma():
         hora = self.__class__.alarms[indice]["hora"]
         minuto = self.__class__.alarms[indice]["minuto"]
         audio = self.__class__.alarms[indice]["audio"]
-        hora_alarm = str(hora) + " : " + str(minuto)
+        hora_alarm = f"{hora:02d}:{minuto:02d}"
 
         self.mixer = mixer
         self.mixer.init()
@@ -262,4 +262,4 @@ class RelojAlarma():
         
         self.findAlarms()
 
-        
+    # funciones para segundo plano
