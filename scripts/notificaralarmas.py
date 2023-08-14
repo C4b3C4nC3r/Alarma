@@ -10,9 +10,14 @@
 #   4.1 Caso (no hay mas alarmas) : este se llamara cada vez que se guarde una nueva alarma para verificar el dia y 
 #   4.2 Caso (haya mas alarmas) : las alarma que finalizo saldra de la lista, y seguira el bucle
 
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from reloj.alarmas import RelojAlarma
 import time
+
+print("Segundo Plano")
 
 reloj_alarma = RelojAlarma()
 tiempo_actual= time.localtime()
@@ -25,8 +30,7 @@ while True:
     reloj_alarma.findAlarms()
     alarms = reloj_alarma.alarms
     dia_actual = tiempo_actual.tm_wday
-    print(dia_actual)
-
+    
     for index, alarma in enumerate(alarms):
         
         hora_alarma = alarma["hora"]
@@ -44,8 +48,6 @@ while True:
             if dia.get(dia_a_buscar, False):
                 en_uso = dia[dia_a_buscar]
                 break
-        
-        print(en_uso)
         
         if actividad and en_uso and hora_actual == hora_alarma and minuto_actual == minuto_alarma: 
             notif = reloj_alarma.createNotifAlarms(indice=index)

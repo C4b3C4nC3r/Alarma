@@ -13,26 +13,25 @@ import subprocess
 #funcion segundo plano 
 def pushAlarma():
     subprocess.Popen(
-        ["python","notificaralarma.py"],
+        ["python","scripts/notificaralarmas.py"],
         shell=True
     )
 #funcion segundo plano
 def pushTemporizador():
     subprocess.Popen(
-        ["python","notificartemporizador.py"],
+        ["python","scripts/notificartemporizador.py"],
         shell=True
     )
 
 
 if __name__ == "__main__":
 
+    pushAlarma()
 
     reloj = RelojVisualizador()
 
     reloj.mainloop()
 
-    #segundo plano
-    pushAlarma()
     
 
 
