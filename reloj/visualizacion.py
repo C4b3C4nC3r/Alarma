@@ -8,10 +8,16 @@ class RelojVisualizador(tk.Tk):
     
     def __init__(self):
         super().__init__()
+
+        #Instancias Vacias
+        self.temporizador = None
+        self.alarma = None
+
         #configurar la ventana
         self.config(bg="black")
         self.geometry("1200x600")
         self.title("Reloj")
+        self.protocol("WM_DELETE_WINDOW", self.on_closing) #asiganar un protocolo
 
         self.opciones_frame = tk.Frame(self,background="black")
         self.opciones_frame.grid(column=0, row=1, padx=10, pady=10, sticky="ns")
@@ -29,6 +35,8 @@ class RelojVisualizador(tk.Tk):
         self.btn_nuevo_temporizador.grid()
         
         self.relojDigital()
+
+
 
     def getAlarmas(self):
         self.limpiarContenidoFrame()
@@ -55,5 +63,12 @@ class RelojVisualizador(tk.Tk):
         self.after(1000, self.relojDigital)
    
     def limpiarContenidoFrame(self):
+        if self.temporizador is not None:
+            self.temporizador.saveWhenClearFrame()
+
         for widget in self.contenido_frame.winfo_children():
             widget.grid_forget()
+            
+    def on_closing(self):
+        self.destroy()
+        

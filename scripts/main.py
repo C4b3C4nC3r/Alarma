@@ -26,8 +26,6 @@ def pushTemporizador():
 
 if __name__ == "__main__":
 
-    pushAlarma()
-
     reloj = RelojVisualizador()
 
     reloj.mainloop()

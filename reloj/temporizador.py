@@ -19,6 +19,8 @@ class RelojTemporizador():
 
     def __init__(self):
         super().__init__()
+        self.activo = False
+
 
     def findTemporizador(self):
         try:
@@ -196,24 +198,29 @@ class RelojTemporizador():
     def temporizadorStop(self, indice,reloj_temporizador):
         if self.__class__.temporizador[indice]["activo"]:
 
-            tiempo_reloj = time.strptime(reloj_temporizador.cget("text"), "%H:%M:%S")
-            tiempo_segundos = tiempo_reloj.tm_hour * 3600 + tiempo_reloj.tm_min * 60 + tiempo_reloj.tm_sec
-
-            n_hora = tiempo_segundos // 3600
-            n_minuto = (tiempo_segundos % 3600) // 60
-            n_segundo = tiempo_segundos % 60
-
-            self.__class__.temporizador[indice]["hora"] = n_hora
-            self.__class__.temporizador[indice]["minuto"] = n_minuto
-            self.__class__.temporizador[indice]["segundo"] = n_segundo
-
-            self.__class__.temporizador[indice]["activo"] = False
+            self.modificarData(indice=indice,reloj_temporizador=reloj_temporizador)
             self.editarTemporizadores()
 
             del self.__class__.tarjeta_temporizador[indice]
 
-            reloj_temporizador.config(text=f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}")
+            reloj_temporizador.config(text=f"{self.n_hora:02d}:{self.n_minuto:02d}:{self.n_segundo:02d}")
             self.__class__.en_uso = False
+            
+    def modificarData(self,indice, reloj_temporizador):
+            
+        tiempo_reloj = time.strptime(reloj_temporizador.cget("text"), "%H:%M:%S")
+        tiempo_segundos = tiempo_reloj.tm_hour * 3600 + tiempo_reloj.tm_min * 60 + tiempo_reloj.tm_sec
+
+        self.n_hora = tiempo_segundos // 3600
+        self.n_minuto = (tiempo_segundos % 3600) // 60
+        self.n_segundo = tiempo_segundos % 60
+
+        self.__class__.temporizador[indice]["hora"] = self.n_hora
+        self.__class__.temporizador[indice]["minuto"] = self.n_minuto
+        self.__class__.temporizador[indice]["segundo"] = self.n_segundo
+
+        self.__class__.temporizador[indice]["activo"] = self.activo
+    
 
     def editarTemporizadores(self):
         try:
@@ -223,4 +230,17 @@ class RelojTemporizador():
             pass
 
         self.findTemporizador()
+    
 
+    def saveWhenClearFrame(self):
+        #Guardar el tiempo que tuvo, el temporizador, o temporizadores en json e imediatamente 
+        tarjetas = self.__class__.tarjeta_temporizador.copy() #todos los temporizadores ejecutandose
+        self.activo = True
+        if tarjetas and self.activo:
+            for index in tarjetas:
+                temporizador = tarjetas[index] 
+                self.temporizadorStop(indice=index,reloj_temporizador=temporizador.reloj_temporizador) #para parar guardarlos temporizadores en su momento antes del cambio
+                
+    def exeTemporizadoresVisual():
+        pass
+    

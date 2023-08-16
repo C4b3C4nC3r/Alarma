@@ -8,3 +8,21 @@
 # 4. Editar el dato, y seguir con el bucle, si el caso no exista mas temporizadores solo te cierras hasta que nuevamente te ejecuten
 #   4.1 Caso (no hay mas temporizadores) : este se llamara cada vez que haya play
 #   4.2 Caso (haya mas temporizadores) : el temporizador que finalizo saldra de la lista, y seguira el bucle
+
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
+
+from reloj.temporizador import RelojTemporizador
+import time
+
+
+reloj_temporizador = RelojTemporizador()
+
+def secondPlaneClosePrincipal():
+    pass
+
+def secondPlaneClearFrame():
+    pass
+
