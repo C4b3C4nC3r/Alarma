@@ -13,7 +13,7 @@ class RelojTemporizador():
     h_list = []
     ms_list = []
     veces = 3
-    tarjeta_temporizador = {} #archivo visual 
+    tarjeta_temporizador = {} #archivo visual
     dir_audio = "data\d_alarm_sounds\herta singing kururing.mp3"
     dir_temporizador = "data\historial\historial_temporizador.json"
 
@@ -29,10 +29,9 @@ class RelojTemporizador():
         except FileNotFoundError:
             with open (self.__class__.dir_temporizador,"w") as file:
                 json.dump([],file,indent=2)
-    
+
     def temporizadorFrame(self, contenido_frame):
 
-        self.active_var = []
         self.findTemporizador()
         self.contenido_frame = contenido_frame
 
@@ -41,7 +40,7 @@ class RelojTemporizador():
             hora_reloj = temporizador['hora']
             minuto_reloj = temporizador['minuto']
             segundo_reloj = temporizador['segundo']
-            
+
             tarjeta = ttk.Label (
                 self.contenido_frame,
                 borderwidth = 2,
@@ -53,8 +52,13 @@ class RelojTemporizador():
 
             reloj_temporizador = ttk.Label(tarjeta,text=f"{hora_reloj:02d}:{minuto_reloj:02d}:{segundo_reloj:02d}")
             reloj_temporizador.grid(row=row,column=1)
-            ttk.Button(tarjeta,text="Play",command=lambda indice = row, reloj_temporizador = reloj_temporizador : self.temporizadorPlay(indice=indice,reloj_temporizador = reloj_temporizador)).grid(row=row+1,column=1)
-            ttk.Button(tarjeta,text="Stop",command=lambda indice = row, reloj_temporizador = reloj_temporizador : self.temporizadorStop(indice=indice,reloj_temporizador=reloj_temporizador)).grid(row=row+1,column=2)
+            ttk.Button(tarjeta,text="Play",command=lambda indice = row : self.temporizadorPlay(indice=indice)).grid(row=row+1,column=1)
+            ttk.Button(tarjeta,text="Stop",command=lambda indice = row : self.temporizadorStop(indice=indice)).grid(row=row+1,column=2)
+
+            #guardar los reloj_temporizadores e indices, en tarjeta_temporizador
+            self.convertionToSecond(indice=row)
+            temporizador = Temporizador(self.contenido_frame,self.tiempo_segundos,reloj_temporizador)
+            self.__class__.tarjeta_temporizador[row] = temporizador
 
         #codigo to btn
         ttk.Button(self.contenido_frame,text="Nueva Temporizador", command=self.windowCreateTemporizador).grid()
@@ -64,7 +68,7 @@ class RelojTemporizador():
         self.dataHoraMinuto()
         self.modal = tk.Toplevel(self.contenido_frame)
         self.modal.title("Nuevo Temporizador")
-        
+
         #config
         self.cmb_h = ttk.Combobox(self.modal, values=self.__class__.h_list,justify='center',width='12',font='Arial')
         self.cmb_h.current(0)
@@ -82,7 +86,7 @@ class RelojTemporizador():
         ttk.Label(self.modal,text="Nombre de Temporizador").grid(column=1,row=2)
         self.name_temporizador = ttk.Entry(self.modal)
         self.name_temporizador.grid(column=2,row=2)
-        
+
         ttk.Button(self.modal, text="Guardar",command=self.saveTemporizador).grid(column=1, row=7)
         ttk.Button(self.modal, text="Cancelar",command=self.modal.destroy).grid(column=2,row=7)
         # Bloquear interacción con la ventana principal
@@ -106,7 +110,7 @@ class RelojTemporizador():
 
             except FileNotFoundError:
                 pass
-        
+
         with open (self.__class__.dir_temporizador, "w") as file:
             json.dump(self.__class__.temporizador, file, indent=2)
 
@@ -165,11 +169,12 @@ class RelojTemporizador():
         return notif
     #funciones visuales
     def relojTemporizador(self, indice):
+
         relojtemporizador = self.__class__.tarjeta_temporizador[indice]
 
         if relojtemporizador.tiempo_segundos > 0 :
             relojtemporizador.tiempo_segundos -=1
-            
+
             n_hora = relojtemporizador.tiempo_segundos // 3600
             n_minuto = (relojtemporizador.tiempo_segundos % 3600) // 60
             n_segundo = relojtemporizador.tiempo_segundos % 60
@@ -178,37 +183,34 @@ class RelojTemporizador():
             relojtemporizador.reloj_temporizador.config(text=tiempo_formato)
             relojtemporizador.parent.after(1000, self.relojTemporizador,indice)
         else:
-            notif = self.createNotifTemporizador(indice=indice,relojtemporizador = relojtemporizador.reloj_temporizador)    
-            
+            notif = self.createNotifTemporizador(indice=indice,relojtemporizador = relojtemporizador.reloj_temporizador)
+
             if self.__class__.en_uso:
                 print("Termino")
                 self.temporizadorStop(indice=indice,reloj_temporizador=relojtemporizador.reloj_temporizador)
                 notif.mainloop()
-                
-    def temporizadorPlay(self,indice,reloj_temporizador):
+
+    def temporizadorPlay(self,indice):
         if not self.__class__.temporizador[indice]["activo"]:
-            
-            self.convertionToSecond(indice=indice)
-            temporizador = Temporizador(self.contenido_frame,self.tiempo_segundos,reloj_temporizador)
-            self.__class__.tarjeta_temporizador[indice] = temporizador
             self.relojTemporizador(indice=indice)
             self.__class__.temporizador[indice]["activo"] = True
             self.editarTemporizadores()
 
-    def temporizadorStop(self, indice,reloj_temporizador):
+    def temporizadorStop(self, indice):
         if self.__class__.temporizador[indice]["activo"]:
 
-            self.modificarData(indice=indice,reloj_temporizador=reloj_temporizador)
+            tarjeta = self.__class__.tarjeta_temporizador[indice]
+
+            self.modificarData(indice=indice)
             self.editarTemporizadores()
 
             del self.__class__.tarjeta_temporizador[indice]
-
-            reloj_temporizador.config(text=f"{self.n_hora:02d}:{self.n_minuto:02d}:{self.n_segundo:02d}")
+            tarjeta.reloj_temporizador.config(text=f"{self.n_hora:02d}:{self.n_minuto:02d}:{self.n_segundo:02d}")
             self.__class__.en_uso = False
-            
-    def modificarData(self,indice, reloj_temporizador):
-            
-        tiempo_reloj = time.strptime(reloj_temporizador.cget("text"), "%H:%M:%S")
+
+    def modificarData(self,indice):
+
+        tiempo_reloj = time.strptime(self.__class__.tarjeta_temporizador[indice].reloj_temporizador.cget("text"), "%H:%M:%S")
         tiempo_segundos = tiempo_reloj.tm_hour * 3600 + tiempo_reloj.tm_min * 60 + tiempo_reloj.tm_sec
 
         self.n_hora = tiempo_segundos // 3600
@@ -220,7 +222,6 @@ class RelojTemporizador():
         self.__class__.temporizador[indice]["segundo"] = self.n_segundo
 
         self.__class__.temporizador[indice]["activo"] = self.activo
-    
 
     def editarTemporizadores(self):
         try:
@@ -230,17 +231,22 @@ class RelojTemporizador():
             pass
 
         self.findTemporizador()
-    
 
     def saveWhenClearFrame(self):
-        #Guardar el tiempo que tuvo, el temporizador, o temporizadores en json e imediatamente 
+        #Guardar el tiempo que tuvo, el temporizador, o temporizadores en json e imediatamente
         tarjetas = self.__class__.tarjeta_temporizador.copy() #todos los temporizadores ejecutandose
         self.activo = True
         if tarjetas and self.activo:
             for index in tarjetas:
-                temporizador = tarjetas[index] 
-                self.temporizadorStop(indice=index,reloj_temporizador=temporizador.reloj_temporizador) #para parar guardarlos temporizadores en su momento antes del cambio
-                
-    def exeTemporizadoresVisual():
-        pass
-    
+                self.temporizadorStop(indice=index) #para parar guardarlos temporizadores en su momento antes del cambio
+
+    def exeTemporizadoresVisual(self):
+        tarjetas = self.__class__.tarjeta_temporizador.copy() #todos los temporizadores ejecutandose
+        if tarjetas:
+            for index in tarjetas:
+                if self.__class__.temporizador[index]["activo"]:
+                    self.__class__.temporizador[index]["activo"] = False #Que ejecute
+                    self.temporizadorPlay(indice=index) #para cargar el reloj temporizador o ejecutarlo si es verdad que sige activo
+
+
+

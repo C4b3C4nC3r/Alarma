@@ -51,7 +51,8 @@ class RelojVisualizador(tk.Tk):
         nuevo_contenido.grid()
         self.temporizador = RelojTemporizador()
         self.temporizador.temporizadorFrame(contenido_frame=self.contenido_frame) #windows
-
+        self.temporizador.exeTemporizadoresVisual() #carga nuevamente la vista de temporizadores activos
+        
     def getReloj(self):
         self.limpiarContenidoFrame()
         self.reloj = tk.Label(self.contenido_frame, font=("Helvetica", 48), bg="black",fg="white")
