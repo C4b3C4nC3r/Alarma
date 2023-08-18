@@ -20,7 +20,7 @@ class RelojTemporizador():
     def __init__(self):
         super().__init__()
         self.activo = False
-
+        self.lapso = False
 
     def findTemporizador(self):
         try:
@@ -158,9 +158,9 @@ class RelojTemporizador():
         #notif
         self.__class__.en_uso = True
         notif = tk.Tk()
-
         notif.title(nombre)
         notif.geometry("600x300")
+        notif.protocol("WM_DELETE_WINDOW",lambda : self.on_closing(notif))
 
         ttk.Label(notif, text=nombre + "Finalizo el temporizador de "+ hora_temporizador).grid(column=1,row=1)
         #en un futuro poner un gif o animation
@@ -169,12 +169,17 @@ class RelojTemporizador():
         return notif
     #funciones visuales
     def relojTemporizador(self, indice):
-            
+        micro_seconds = 999
         relojtemporizador = self.__class__.tarjeta_temporizador[indice]
 
         if self.__class__.temporizador[indice]["activo"]:
             if relojtemporizador.tiempo_segundos > 0 :
-                relojtemporizador.tiempo_segundos -=1
+                #restar si hay valor distinto de 0 en lapso_tiempo_segundos
+                
+                if self.lapso:
+                    relojtemporizador.tiempo_segundos -= self.lapso if relojtemporizador.tiempo_segundos > self.lapso else -1
+                else:
+                    relojtemporizador.tiempo_segundos -=1
 
                 n_hora = relojtemporizador.tiempo_segundos // 3600
                 n_minuto = (relojtemporizador.tiempo_segundos % 3600) // 60
@@ -182,7 +187,7 @@ class RelojTemporizador():
                 tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
 
                 relojtemporizador.reloj_temporizador.config(text=tiempo_formato)
-                relojtemporizador.parent.after(1000, self.relojTemporizador,indice)
+                relojtemporizador.parent.after(micro_seconds, self.relojTemporizador,indice)
             else:
                 notif = self.createNotifTemporizador(indice=indice)
 
@@ -242,13 +247,17 @@ class RelojTemporizador():
             for index in tarjetas:
                 self.temporizadorStop(indice=index) #para parar guardarlos temporizadores en su momento antes del cambio
 
-    def exeTemporizadoresVisual(self):
+    def exeTemporizadoresVisual(self, lapso = 0.0):
         tarjetas = self.__class__.tarjeta_temporizador.copy() #todos los temporizadores ejecutandose
         if tarjetas:
             for index in tarjetas:
                 if self.__class__.temporizador[index]["activo"]:
                     self.__class__.temporizador[index]["activo"] = False #Que ejecute
                     self.temporizadorPlay(indice=index) #para cargar el reloj temporizador o ejecutarlo si es verdad que sige activo
+                    self.lapso =int(lapso) if lapso != 0 else False
 
+            self.lapso = False
 
-
+    def on_closing(self,ventana):
+        self.mixer.quit()
+        ventana.destroy()

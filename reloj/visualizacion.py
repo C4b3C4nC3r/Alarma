@@ -5,9 +5,6 @@ from reloj.alarmas import RelojAlarma
 from reloj.temporizador import RelojTemporizador
 
 class RelojVisualizador(tk.Tk):
-    
-    lapso_inicio = 0.0
-    lapso_total = 0
 
     def __init__(self):
         super().__init__()
@@ -15,7 +12,8 @@ class RelojVisualizador(tk.Tk):
         #Instancias Vacias
         self.temporizador = None
         self.alarma = None
-
+        self.lapso = False
+        self.time_lapso = 0.0
         #configurar la ventana
         self.config(bg="black")
         self.geometry("1200x600")
@@ -40,6 +38,8 @@ class RelojVisualizador(tk.Tk):
         self.relojDigital()
 
     def getAlarmas(self):
+        if self.lapso:
+            self.time_lapso += time.perf_counter()-self.time_perfect
         self.limpiarContenidoFrame()
         nuevo_contenido = ttk.Label(self.contenido_frame, text="Alarmas", background="black", foreground="white")
         nuevo_contenido.grid()
@@ -47,14 +47,23 @@ class RelojVisualizador(tk.Tk):
         self.alarma.alarmsFrame(contenido_frame=self.contenido_frame) #windows
         
     def getTemporizadores(self):
+        tiempo_lapso = 0.0
+
+        if self.lapso:
+            self.time_lapso += time.perf_counter()-self.time_perfect
+            tiempo_lapso = self.time_lapso
+
+        self.temporizador = None
         self.limpiarContenidoFrame() #despues de limpiar
         nuevo_contenido = ttk.Label(self.contenido_frame, text="Temporizador", background="black", foreground="white")
         nuevo_contenido.grid()
         self.temporizador = RelojTemporizador()
         self.temporizador.temporizadorFrame(contenido_frame=self.contenido_frame) #windows
-        self.temporizador.exeTemporizadoresVisual() #carga nuevamente la vista de temporizadores activos
+        self.temporizador.exeTemporizadoresVisual(lapso = tiempo_lapso) #carga nuevamente la vista de temporizadores activos
         
     def getReloj(self):
+        if self.lapso:
+            self.time_lapso += time.perf_counter()-self.time_perfect
         self.limpiarContenidoFrame()
         self.reloj = tk.Label(self.contenido_frame, font=("Helvetica", 48), bg="black",fg="white")
         self.reloj.grid()
@@ -65,11 +74,16 @@ class RelojVisualizador(tk.Tk):
         self.after(1000, self.relojDigital)
    
     def limpiarContenidoFrame(self):
-        if self.temporizador is not None:
+        if self.temporizador != None:
+            self.elipse_time()
             self.temporizador.saveWhenClearFrame()
 
         for widget in self.contenido_frame.winfo_children():
             widget.grid_forget()
+
+    def elipse_time(self):
+        self.time_perfect = time.perf_counter()
+        self.lapso = True
 
 
     def on_closing(self):
