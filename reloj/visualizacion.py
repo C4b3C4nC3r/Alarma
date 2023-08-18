@@ -6,6 +6,9 @@ from reloj.temporizador import RelojTemporizador
 
 class RelojVisualizador(tk.Tk):
     
+    lapso_inicio = 0.0
+    lapso_total = 0
+
     def __init__(self):
         super().__init__()
 
@@ -36,8 +39,6 @@ class RelojVisualizador(tk.Tk):
         
         self.relojDigital()
 
-
-
     def getAlarmas(self):
         self.limpiarContenidoFrame()
         nuevo_contenido = ttk.Label(self.contenido_frame, text="Alarmas", background="black", foreground="white")
@@ -46,7 +47,7 @@ class RelojVisualizador(tk.Tk):
         self.alarma.alarmsFrame(contenido_frame=self.contenido_frame) #windows
         
     def getTemporizadores(self):
-        self.limpiarContenidoFrame()
+        self.limpiarContenidoFrame() #despues de limpiar
         nuevo_contenido = ttk.Label(self.contenido_frame, text="Temporizador", background="black", foreground="white")
         nuevo_contenido.grid()
         self.temporizador = RelojTemporizador()
@@ -69,7 +70,8 @@ class RelojVisualizador(tk.Tk):
 
         for widget in self.contenido_frame.winfo_children():
             widget.grid_forget()
-            
+
+
     def on_closing(self):
         self.destroy()
         

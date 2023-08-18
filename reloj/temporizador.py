@@ -140,7 +140,7 @@ class RelojTemporizador():
 
         self.tiempo_segundos = h * 3600 + m * 60 + s
     #ventana notificacion temporizador
-    def createNotifTemporizador(self, indice, relojtemporizador):
+    def createNotifTemporizador(self, indice):
         #datos
         nombre = self.__class__.temporizador[indice]["nombre"]
         hora = self.__class__.temporizador[indice]["hora"]
@@ -169,31 +169,32 @@ class RelojTemporizador():
         return notif
     #funciones visuales
     def relojTemporizador(self, indice):
-
+            
         relojtemporizador = self.__class__.tarjeta_temporizador[indice]
 
-        if relojtemporizador.tiempo_segundos > 0 :
-            relojtemporizador.tiempo_segundos -=1
+        if self.__class__.temporizador[indice]["activo"]:
+            if relojtemporizador.tiempo_segundos > 0 :
+                relojtemporizador.tiempo_segundos -=1
 
-            n_hora = relojtemporizador.tiempo_segundos // 3600
-            n_minuto = (relojtemporizador.tiempo_segundos % 3600) // 60
-            n_segundo = relojtemporizador.tiempo_segundos % 60
-            tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
+                n_hora = relojtemporizador.tiempo_segundos // 3600
+                n_minuto = (relojtemporizador.tiempo_segundos % 3600) // 60
+                n_segundo = relojtemporizador.tiempo_segundos % 60
+                tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
 
-            relojtemporizador.reloj_temporizador.config(text=tiempo_formato)
-            relojtemporizador.parent.after(1000, self.relojTemporizador,indice)
-        else:
-            notif = self.createNotifTemporizador(indice=indice,relojtemporizador = relojtemporizador.reloj_temporizador)
+                relojtemporizador.reloj_temporizador.config(text=tiempo_formato)
+                relojtemporizador.parent.after(1000, self.relojTemporizador,indice)
+            else:
+                notif = self.createNotifTemporizador(indice=indice)
 
-            if self.__class__.en_uso:
-                print("Termino")
-                self.temporizadorStop(indice=indice,reloj_temporizador=relojtemporizador.reloj_temporizador)
-                notif.mainloop()
+                if self.__class__.en_uso:
+                    print("Termino")
+                    self.temporizadorStop(indice=indice)
+                    notif.mainloop()
 
     def temporizadorPlay(self,indice):
         if not self.__class__.temporizador[indice]["activo"]:
-            self.relojTemporizador(indice=indice)
             self.__class__.temporizador[indice]["activo"] = True
+            self.relojTemporizador(indice=indice)
             self.editarTemporizadores()
 
     def temporizadorStop(self, indice):
@@ -204,9 +205,10 @@ class RelojTemporizador():
             self.modificarData(indice=indice)
             self.editarTemporizadores()
 
-            del self.__class__.tarjeta_temporizador[indice]
+            #del self.__class__.tarjeta_temporizador[indice]
             tarjeta.reloj_temporizador.config(text=f"{self.n_hora:02d}:{self.n_minuto:02d}:{self.n_segundo:02d}")
             self.__class__.en_uso = False
+
 
     def modificarData(self,indice):
 
