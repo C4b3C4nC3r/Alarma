@@ -14,9 +14,9 @@ class RelojTemporizador():
     ms_list = []
     veces = 3
     tarjeta_temporizador = {} #archivo visual
-    dir_audio = "data\d_alarm_sounds\herta singing kururing.mp3"
-    dir_temporizador = "data\historial\historial_temporizador.json"
-
+    dir_audio = os.path.join("data/d_alarm_sounds","herta singing kururing.mp3")
+    dir_temporizador = os.path.join("data/historial","historial_temporizador.json")
+    
     def __init__(self):
         super().__init__()
         self.activo = False

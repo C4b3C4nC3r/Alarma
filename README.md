@@ -9,6 +9,32 @@ Despues de clonarlo o descargar el repositorio, necesitamos tener todas las depe
 - `instalar` las dependencias : ```bash pip install -r .\requeriments.txt```
 
 
+# Configuracion Fedora 38 (intentalo en tu OS)
+
+En el caso (tambien se puede en windows) que haya mas ramas en el proyecto recuerda 
+
+- git clone `link del proyecto`
+- `git branch -a` : revisar las ramas, tanto las locales como las remotas
+- `git checkout -b reloj origin/reloj`: cambialo segun la rama
+
+ya teniendo el proyecto en la carpeta destino, podemos hacer los pasos, pero primero deberas instalar las dependencias de tkinter (en mi caso fue asi en teoria no debe de importar pero al parecer debo de tener lo siguiente para que funcione, en tu caso puede ser distinto, ya que cada fedora puede ser distinta)
+   
+Usa esto primero, y verifica su instalacion con un main o con python, import tkinter (enter), print(tkinter.TkVersion)
+   ```sudo dnf install python3-tkinter```
+
+despues de hacer eso empezamos con los siguientes pasos:
+
+- `virtualenv` : ```bash pip install virtualenv```
+- crear el (aconsejo que sea env)`env` : ```bash virtualenv env```
+- Activar el `env` : ```bash .env/bin/activate```
+- `instalar` las dependencias : ```bash pip install -r ./requeriments.txt```
+
+en teoria debe de funcionar, sino es el caso usa chat gpt, pero por lo general, sino te funciona a de ser las dependencias que faltan para poder usar un modulo de python
+
+# Desactivar env
+
+- ```deactivate```
+
 # Ejecutar por Terminal Windows 10 (intentalo en tu OS)
 
 - usar `python -m` : 
@@ -16,7 +42,7 @@ Despues de clonarlo o descargar el repositorio, necesitamos tener todas las depe
     ```bash python -m scripts.main ```
 
 
-# caso de error al no poder ejecutar el entorno virtual
+# caso de error al no poder ejecutar el entorno virtual (Windows 10)
 
 Sacado de chat gpt 3.5
 
@@ -59,3 +85,9 @@ Aquí tienes los pasos que puedes seguir para resolver este problema:
 Recuerda que cambiar la política de ejecución a "Unrestricted" o "Bypass" puede exponer tu sistema a riesgos de seguridad. Por lo general, es una buena práctica utilizar una política de ejecución más restrictiva y solo usar "RemoteSigned" o "Unrestricted" cuando sea necesario.
 
 Si estás trabajando en un sistema compartido o de producción, es recomendable que consultes con el administrador del sistema antes de realizar estos cambios para asegurarte de que estén en línea con las políticas de seguridad de tu organización.
+
+
+
+# Notas:
+
+Usen o llevense con la mano con chatgpt, les ayudara a solucionar algunas cosas...

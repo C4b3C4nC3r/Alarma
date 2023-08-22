@@ -46,7 +46,7 @@ while True:
 
         for dia in dias_en_uso:
             if dia.get(dia_a_buscar, False):
-                en_uso = dia[dia_a_buscar]
+                en_uso = True if dia[dia_a_buscar] and actividad else False
                 break
         
         if actividad and en_uso and hora_actual == hora_alarma and minuto_actual == minuto_alarma: 

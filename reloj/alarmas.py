@@ -15,8 +15,8 @@ class RelojAlarma():
     limite_veces = 3
     dia_de_la_semana = ["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"]
     check_boxes = []
-    dir_audio = "data\d_alarm_sounds\herta singing kururing.mp3"
-    dir_alarm = "data\historial\historial_alarms.json"
+    dir_audio = os.path.join("data/d_alarm_sounds","herta singing kururing.mp3")
+    dir_alarm = os.path.join("data/historial","historial_alarms.json")
     
     def __init__(self):
         super().__init__()
