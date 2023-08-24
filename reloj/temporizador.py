@@ -14,6 +14,7 @@ class RelojTemporizador():
     ms_list = []
     veces = 3
     tarjeta_temporizador = {} #archivo visual
+    widget_temporizador = [] #lista para su actualizacion
     dir_audio = os.path.join("data/d_alarm_sounds","herta singing kururing.mp3")
     dir_temporizador = os.path.join("data/historial","historial_temporizador.json")
     
@@ -21,6 +22,7 @@ class RelojTemporizador():
         super().__init__()
         self.activo = False
         self.lapso = False
+        self.contenido_frame = None
 
     def findTemporizador(self):
         try:
@@ -40,6 +42,7 @@ class RelojTemporizador():
             hora_reloj = temporizador['hora']
             minuto_reloj = temporizador['minuto']
             segundo_reloj = temporizador['segundo']
+            nombre = temporizador['nombre']
 
             tarjeta = ttk.Label (
                 self.contenido_frame,
@@ -52,16 +55,22 @@ class RelojTemporizador():
 
             reloj_temporizador = ttk.Label(tarjeta,text=f"{hora_reloj:02d}:{minuto_reloj:02d}:{segundo_reloj:02d}")
             reloj_temporizador.grid(row=row,column=1)
+            ttk.Label(tarjeta,text=nombre).grid(row=row, column=2)
             ttk.Button(tarjeta,text="Play",command=lambda indice = row : self.temporizadorPlay(indice=indice)).grid(row=row+1,column=1)
             ttk.Button(tarjeta,text="Stop",command=lambda indice = row : self.temporizadorStop(indice=indice)).grid(row=row+1,column=2)
+            ttk.Button(tarjeta,text="Eliminar",command=lambda indice = row : self.temporizadorDelete(indice=indice)).grid(row=row+1,column=3)
 
             #guardar los reloj_temporizadores e indices, en tarjeta_temporizador
             self.convertionToSecond(indice=row)
             temporizador = Temporizador(self.contenido_frame,self.tiempo_segundos,reloj_temporizador)
+            self.__class__.widget_temporizador.append(tarjeta)
             self.__class__.tarjeta_temporizador[row] = temporizador
 
         #codigo to btn
-        ttk.Button(self.contenido_frame,text="Nueva Temporizador", command=self.windowCreateTemporizador).grid()
+        btn =  ttk.Button(self.contenido_frame,text="Nueva Temporizador", command=self.windowCreateTemporizador)
+        btn.grid()
+
+        self.__class__.widget_temporizador.append(btn)
 
     #Ventana creacion
     def windowCreateTemporizador(self):
@@ -94,6 +103,7 @@ class RelojTemporizador():
     #Tratamiento de Datos
     def saveTemporizador(self):
         temporizador = {
+            "origin": f"{int(self.cmb_h.get()):02d}:{int(self.cmb_m.get()):02d}:{int(self.cmb_s.get()):02d}",
             "hora":int(self.cmb_h.get()),
             "minuto":int(self.cmb_m.get()),
             "segundo":int(self.cmb_s.get()),
@@ -121,7 +131,12 @@ class RelojTemporizador():
         self.cmb_s.set(0)
         self.name_temporizador.delete(0,tk.END)
 
+        self.clearContentFrame()
+
     def dataHoraMinuto(self):
+        self.__class__.h_list = []
+        self.__class__.ms_list = []
+
         for i in range(0,25):
             self.__class__.h_list.append(i)
         for i in range(0,61):
@@ -143,12 +158,8 @@ class RelojTemporizador():
     def createNotifTemporizador(self, indice):
         #datos
         nombre = self.__class__.temporizador[indice]["nombre"]
-        hora = self.__class__.temporizador[indice]["hora"]
-        minuto = self.__class__.temporizador[indice]["minuto"]
-        segundo = self.__class__.temporizador[indice]["segundo"]
+        hora = self.__class__.temporizador[indice]["origin"]
         audio = self.__class__.dir_audio #predefinido
-
-        hora_temporizador = f"{hora:02d}:{minuto:02d}:{segundo:02d}"
 
         self.mixer = mixer
         self.mixer.init()
@@ -162,24 +173,20 @@ class RelojTemporizador():
         notif.geometry("600x300")
         notif.protocol("WM_DELETE_WINDOW",lambda : self.on_closing(notif))
 
-        ttk.Label(notif, text=nombre + "Finalizo el temporizador de "+ hora_temporizador).grid(column=1,row=1)
+        ttk.Label(notif, text=f"{nombre} \nFinalizo el temporizador de \n{hora}").grid(column=1,row=1)
         #en un futuro poner un gif o animation
         btn_ok = ttk.Button(notif, text="Ok",command= lambda: (self.mixer.quit(),notif.destroy()))
         btn_ok.grid(column=2,row=3)
         return notif
     #funciones visuales
     def relojTemporizador(self, indice):
-        micro_seconds = 999
+        micro_seconds = 1000
         relojtemporizador = self.__class__.tarjeta_temporizador[indice]
 
         if self.__class__.temporizador[indice]["activo"]:
             if relojtemporizador.tiempo_segundos > 0 :
                 #restar si hay valor distinto de 0 en lapso_tiempo_segundos
-                
-                if self.lapso:
-                    relojtemporizador.tiempo_segundos -= self.lapso if relojtemporizador.tiempo_segundos > self.lapso else -1
-                else:
-                    relojtemporizador.tiempo_segundos -=1
+                relojtemporizador.tiempo_segundos -=1
 
                 n_hora = relojtemporizador.tiempo_segundos // 3600
                 n_minuto = (relojtemporizador.tiempo_segundos % 3600) // 60
@@ -187,13 +194,22 @@ class RelojTemporizador():
                 tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
 
                 relojtemporizador.reloj_temporizador.config(text=tiempo_formato)
-                relojtemporizador.parent.after(micro_seconds, self.relojTemporizador,indice)
+                relojtemporizador.parent.after(micro_seconds, self.relojTemporizador,indice) #parent guarda la propiedad, este caso 
+                #siempre lo guarda, por eso sigue contando, por ende es importante no saturar y siempre poner un limite, para no saturarlo, en mi 
+                #caso funciono en Fedora 38, proximanete probare con windows a ver que pasa... ya que es muy importante testear en cada sistema Operativo
+                # Es redundante contabilizar el tiempo, ahora si creo un nuevo parent, o limpio el parent de las funciones ahi si creo que es necesario
+                # en este caso cuando en visualizacion.py inicia con la instancia en none, pero con la session, mantiene una instancia, por eso tambien continua
+                # No es recomendable, en futuras ediciones se cambiara esa dinamica, ya que provocaria un uso indecente de recursos, si es que hay muchos temporizadores
+                # Igual esto es a futuro
+
             else:
                 notif = self.createNotifTemporizador(indice=indice)
 
                 if self.__class__.en_uso:
                     print("Termino")
+                    self.activo = False
                     self.temporizadorStop(indice=indice)
+                    print (self.__class__.en_uso)
                     notif.mainloop()
 
     def temporizadorPlay(self,indice):
@@ -214,7 +230,20 @@ class RelojTemporizador():
             tarjeta.reloj_temporizador.config(text=f"{self.n_hora:02d}:{self.n_minuto:02d}:{self.n_segundo:02d}")
             self.__class__.en_uso = False
 
+    def temporizadorDelete(self, indice):
+        if self.__class__.temporizador[indice]:
+            try:
+                self.__class__.temporizador.pop(indice)
+                del self.__class__.tarjeta_temporizador[indice]
+                print("ELiminado")
+            
+            except ValueError:
+                print("ERROR al eliminar")
+            
+            self.editarTemporizadores()
+            self.clearContentFrame()
 
+    
     def modificarData(self,indice):
 
         tiempo_reloj = time.strptime(self.__class__.tarjeta_temporizador[indice].reloj_temporizador.cget("text"), "%H:%M:%S")
@@ -241,22 +270,20 @@ class RelojTemporizador():
 
     def saveWhenClearFrame(self):
         #Guardar el tiempo que tuvo, el temporizador, o temporizadores en json e imediatamente
-        tarjetas = self.__class__.tarjeta_temporizador.copy() #todos los temporizadores ejecutandose
+        tarjetas = self.__class__.tarjeta_temporizador #todos los temporizadores ejecutandose
         self.activo = True
         if tarjetas and self.activo:
             for index in tarjetas:
                 self.temporizadorStop(indice=index) #para parar guardarlos temporizadores en su momento antes del cambio
 
-    def exeTemporizadoresVisual(self, lapso = 0.0):
-        tarjetas = self.__class__.tarjeta_temporizador.copy() #todos los temporizadores ejecutandose
-        if tarjetas:
-            for index in tarjetas:
-                if self.__class__.temporizador[index]["activo"]:
-                    self.__class__.temporizador[index]["activo"] = False #Que ejecute
-                    self.temporizadorPlay(indice=index) #para cargar el reloj temporizador o ejecutarlo si es verdad que sige activo
-                    self.lapso =int(lapso) if lapso != 0 else False
+    def clearContentFrame(self):
 
-            self.lapso = False
+        widget_remove = self.__class__.widget_temporizador
+
+        for widget in reversed(widget_remove):
+            widget.destroy()
+        
+        self.temporizadorFrame(self.contenido_frame)
 
     def on_closing(self,ventana):
         self.mixer.quit()
