@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from pygame import mixer
 from reloj.temporizadorClass import Temporizador
+from tkinter import messagebox
 
 class RelojTemporizador():
 
@@ -42,34 +43,38 @@ class RelojTemporizador():
         self.btn_nuevo =  ttk.Button(self.contenido_frame,text="Nueva Temporizador", command=self.windowCreateTemporizador)
         self.btn_nuevo.grid()
         
+        self.exeTemporizadoresVisual() #ejecutar si cumplen las ocndiciones
+
     def creacionWidgetsTarjetas(self, row, temporizador):
         
         hora_reloj = temporizador['hora']
         minuto_reloj = temporizador['minuto']
         segundo_reloj = temporizador['segundo']
         nombre = temporizador['nombre']
+        oculto = temporizador['oculto']
 
-        tarjeta = ttk.Label (
-            self.contenido_frame,
-            borderwidth = 2,
-            relief = "solid",
-            padding = 10
-        )
+        if not oculto:
+            tarjeta = ttk.Label (
+                self.contenido_frame,
+                borderwidth = 2,
+                relief = "solid",
+                padding = 10
+            )
 
-        tarjeta.grid(row= row,column=0, sticky="ew", padx=10,pady=5)
+            tarjeta.grid(row= row,column=0, sticky="ew", padx=10,pady=5)
 
-        reloj_temporizador = ttk.Label(tarjeta,text=f"{hora_reloj:02d}:{minuto_reloj:02d}:{segundo_reloj:02d}")
-        reloj_temporizador.grid(row=row,column=1)
-        ttk.Label(tarjeta,text=nombre).grid(row=row, column=2)
-        ttk.Button(tarjeta,text="Play",command=lambda indice = row : self.temporizadorPlay(indice=indice)).grid(row=row+1,column=1)
-        ttk.Button(tarjeta,text="Stop",command=lambda indice = row : self.temporizadorStop(indice=indice)).grid(row=row+1,column=2)
-        ttk.Button(tarjeta,text="Eliminar",command=lambda indice = row : self.temporizadorDelete(indice=indice)).grid(row=row+1,column=3)
+            reloj_temporizador = ttk.Label(tarjeta,text=f"{hora_reloj:02d}:{minuto_reloj:02d}:{segundo_reloj:02d}")
+            reloj_temporizador.grid(row=row,column=1)
+            ttk.Label(tarjeta,text=nombre).grid(row=row, column=2)
+            ttk.Button(tarjeta,text="Play",command=lambda indice = row : self.temporizadorPlay(indice=indice)).grid(row=row+1,column=1)
+            ttk.Button(tarjeta,text="Stop",command=lambda indice = row : self.temporizadorStop(indice=indice)).grid(row=row+1,column=2)
+            ttk.Button(tarjeta,text="Eliminar",command=lambda indice = row : self.temporizadorDelete(indice=indice)).grid(row=row+1,column=3)
 
-            #guardar los reloj_temporizadores e indices, en tarjeta_temporizador
-        self.convertionToSecond(indice=row)
-        temporizador = Temporizador(self.contenido_frame,self.tiempo_segundos,reloj_temporizador)
-        self.__class__.widget_temporizador.append(tarjeta)
-        self.__class__.tarjeta_temporizador[row] = temporizador
+                #guardar los reloj_temporizadores e indices, en tarjeta_temporizador
+            self.convertionToSecond(indice=row)
+            temporizador = Temporizador(self.contenido_frame,self.tiempo_segundos,reloj_temporizador)
+            self.__class__.widget_temporizador.append(tarjeta)
+            self.__class__.tarjeta_temporizador[row] = temporizador
 
     #Ventana creacion
     def windowCreateTemporizador(self):
@@ -107,16 +112,15 @@ class RelojTemporizador():
             "minuto":int(self.cmb_m.get()),
             "segundo":int(self.cmb_s.get()),
             "nombre":self.name_temporizador.get() if not len(self.name_temporizador.get()) == 0 else "Temporizador",
-            "activo":False
+            "activo":False,
+            "oculto": False
         }
 
         self.__class__.temporizador.append(temporizador)
 
-        row = self.__class__.temporizador.index(temporizador)
-
+        #row = self.__class__.temporizador.index(temporizador)
+        row = len(self.__class__.temporizador) - 1
         self.editarTemporizadores()
-
-        self.findTemporizador()
         #limpiar datos
         self.cmb_h.set(0)
         self.cmb_m.set(15)
@@ -181,7 +185,7 @@ class RelojTemporizador():
         micro_seconds = 1000
         relojtemporizador = self.__class__.tarjeta_temporizador[indice]
 
-        if self.__class__.temporizador[indice]["activo"]:
+        if self.__class__.temporizador[indice]["activo"] and not self.__class__.temporizador[indice]["oculto"]:
             if relojtemporizador.tiempo_segundos > 0 :
                 #restar si hay valor distinto de 0 en lapso_tiempo_segundos
                 relojtemporizador.tiempo_segundos -=1
@@ -222,18 +226,18 @@ class RelojTemporizador():
             self.__class__.en_uso = False
 
     def temporizadorDelete(self, indice):
-        print (indice)
         if self.__class__.temporizador[indice]:
-            self.saveWhenClearFrame()
-            self.__class__.temporizador.pop(indice) #fisica
-            self.editarTemporizadores()            
             
-            self.__class__.widget_temporizador[indice].destroy()
-            self.__class__.widget_temporizador.pop(indice)
-            del self.__class__.tarjeta_temporizador[indice]
+            title = "Confirmacion eliminacion?"
+            message = "Estas seguro de eliminar este temporizador"
             
-            #self.btn_nuevo.destroy()
-            #self.exeTemporizadoresVisual()
+            if messagebox.askyesno(title==title, message=message):
+
+                self.__class__.widget_temporizador[indice].destroy()
+                self.__class__.temporizador[indice]["activo"] = False
+                self.__class__.temporizador[indice]["oculto"] = True
+
+
 
     def exeTemporizadoresVisual(self):
         tarjetas = self.__class__.tarjeta_temporizador #todos los temporizadores ejecutandose
