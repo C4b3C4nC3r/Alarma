@@ -1,0 +1,10 @@
+app:
+
+  app-name: O`Clock
+  app-limite-historial: 20
+
+  app-creador: Livington Lopez
+  app-creacion: 26-ago-2023
+  app-ultima: 26-ago-2023
+
+  app-version: 4.0.0

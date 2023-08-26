@@ -1,0 +1,31 @@
+mensajes:
+
+  # Mensajes:
+  # Estos mensajes son genericos y aplicables a gran mayoria de aplicaciones que usen S-E-D (SAVE, EDIT, DELETE)
+  # Su uso no es obligatorio, pero en mi caso me facilitara a no tener cadenas de caracteres en codigo, lo que facilita la lectura
+  # Ademas de brindar algo mas visual a los programadores que esten interesado en mi codigo
+
+  mensajes-error:
+    # Mensajes de error: mensajes que saldran en las SED
+    guardar: No se logro Guardar o agregar la informacion, intentalo mas tarde o consulte en la documentacion
+    eliminar: No se logro Eliminar o dar de baja la informacion, intentalo mas tarde o consulte en la documentacion
+    editar: No se logro Actualizar o modificar la informacion, intentalo mas tarde o consulte en la documentacion
+
+  mensajes-confirmacion:
+    # Mensajes de confirmacion: mensajes que saldran en las SED, esto nos ayudara a evitar que se equivoque,mayor control
+    guardar: La informacion que adjunto, requiere guardarla?. Presione si o no
+    eliminar: La accion de eliminar o dar de baja la informacion, es "irreversible". Presione si o no.
+    editar: La accion de actualizar o modificar la informacion, es "irreversible". Presione si o no.
+
+  mensajes-alerta:
+    # Mensajes de alerta: mensajes que saldran en las SED, esto solo alerta lo que acabas de realizar
+    guardar: La informacion que adjunto fue guardada con exito, presione ok.
+    eliminar: La accion de eliminar o dar de baja la informacion, fue exitoso, presione ok.
+    editar: La accion de actualizaro modificar la informacion, fue exitoso, preisone ok.
+
+
+  mensajes-advertencia:
+    # Mensajes de advertencia: mensajes que saldra cuando alcansaste el liminte en el historial
+    guardar: Esta en limite!, la informacion adjuntada eliminara un espacio del historial inactivo.
+    
+

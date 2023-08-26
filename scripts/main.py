@@ -1,36 +1,8 @@
 """
-Mi Aplicación de Reloj
+Mi Aplicación de Reloj v4
 Autor: Livington Lopez
-Fecha: 08/04/2023
+Fecha: 26/08/2023
 Descripción: Este programa ejecuta la aplicación de reloj, la cual permite la creacion de alarmas, temporizador de manera configurable 
 para el usario.
 """
-
-
-from reloj.visualizacion import RelojVisualizador
-import subprocess
-
-#funcion segundo plano 
-def pushAlarma():
-    subprocess.Popen(
-        ["python","scripts/notificaralarmas.py"],
-        shell=True
-    )
-#funcion segundo plano
-def pushTemporizador():
-    subprocess.Popen(
-        ["python","scripts/notificartemporizador.py"],
-        shell=True
-    )
-
-
-if __name__ == "__main__":
-
-    reloj = RelojVisualizador()
-
-    reloj.mainloop()
-
-    
-
-
 

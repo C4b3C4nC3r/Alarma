@@ -1,4 +1,8 @@
 
+# O ` Clock 
+
+Version 4 de reloj...
+
 # Configurarlo Windows 10 (intentalo en tu OS)
 
 Despues de clonarlo o descargar el repositorio, necesitamos tener todas las dependencias, la primera hay que instalar el entorno virtual:
@@ -7,7 +11,6 @@ Despues de clonarlo o descargar el repositorio, necesitamos tener todas las depe
 - crear el (aconsejo que sea env)`env` : ```bash virtualenv env```
 - Activar el `env` : ```bash .env\Scripts\activate```
 - `instalar` las dependencias : ```bash pip install -r .\requeriments.txt```
-
 
 # Configuracion Fedora 38 (intentalo en tu OS)
 
@@ -91,3 +94,5 @@ Si estás trabajando en un sistema compartido o de producción, es recomendable 
 # Notas:
 
 Usen o llevense con la mano con chatgpt, les ayudara a solucionar algunas cosas...
+
+Esta es una nueva version, donde llevaremos mejores practias en el codigo, ya que la version tres, hicimos un enredo XD y es mas facil crear otro, a que desenredar ajajaja
