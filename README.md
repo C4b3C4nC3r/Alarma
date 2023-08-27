@@ -29,7 +29,7 @@ despues de hacer eso empezamos con los siguientes pasos:
 
 - `virtualenv` : ```bash pip install virtualenv```
 - crear el (aconsejo que sea env)`env` : ```bash virtualenv env```
-- Activar el `env` : ```bash .env/bin/activate```
+- Activar el `env` : ```bash source env/bin/activate```
 - `instalar` las dependencias : ```bash pip install -r ./requeriments.txt```
 
 en teoria debe de funcionar, sino es el caso usa chat gpt, pero por lo general, sino te funciona a de ser las dependencias que faltan para poder usar un modulo de python

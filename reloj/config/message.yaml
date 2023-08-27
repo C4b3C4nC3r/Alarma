@@ -10,6 +10,7 @@ mensajes:
     guardar: No se logro Guardar o agregar la informacion, intentalo mas tarde o consulte en la documentacion
     eliminar: No se logro Eliminar o dar de baja la informacion, intentalo mas tarde o consulte en la documentacion
     editar: No se logro Actualizar o modificar la informacion, intentalo mas tarde o consulte en la documentacion
+    file: El archivo que esta buscando o editando, no esta disponible, intentalo mas tarde o consulte en la documentacion
 
   mensajes-confirmacion:
     # Mensajes de confirmacion: mensajes que saldran en las SED, esto nos ayudara a evitar que se equivoque,mayor control
@@ -27,5 +28,5 @@ mensajes:
   mensajes-advertencia:
     # Mensajes de advertencia: mensajes que saldra cuando alcansaste el liminte en el historial
     guardar: Esta en limite!, la informacion adjuntada eliminara un espacio del historial inactivo.
-    
+    file: El archivo no se encuentra para su uso, asi que la aplicacion creara un nuevo archivo, para su uso
 
