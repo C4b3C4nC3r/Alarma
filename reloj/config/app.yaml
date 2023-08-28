@@ -8,3 +8,23 @@ app:
   app-ultima: 26-ago-2023
 
   app-version: 4.0.0
+
+  modal:
+    modal-alarma: Nueva Alarma
+    modal-temporizador: Nuevo Temporizador
+    modal-crono: Nuevo Cronometro
+    modal-reloj: Nuevo Reloj
+  
+  btn-add:
+    btn-alarma: Agregar Alarma
+    btn-temporizador: Agregar Temporizador
+    btn-crono: Agregar Cronometro
+    btn-reloj: Agregar Reloj
+
+  btn-remove:
+    btn-alarma: Remover Alarma
+    btn-temporizador: Remover Temporizador
+    btn-crono: Remover Cronometro
+    btn-reloj: Remover Reloj
+
+  

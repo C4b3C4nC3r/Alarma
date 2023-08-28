@@ -17,7 +17,7 @@ class Reloj(ABC):
         pass
 
     @abstractmethod
-    def ventansPrincipal(self):
+    def ventanaPrincipal(self):
         pass
 
     @abstractmethod

@@ -1,10 +1,14 @@
 from abc_app.reloj import Reloj
 from abc_app.sed import InfoSED
 from pathlib import Path
+
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
+from pygame import mixer
+
 import yaml
 import os
 import json
-
 
 class AlarmaReloj(Reloj, InfoSED):
 
@@ -14,10 +18,24 @@ class AlarmaReloj(Reloj, InfoSED):
     dir_audio = None 
     dir_gif = None 
 
-    def __init__(self):
+    def __init__(self, frame):
         super().__init__()
+        self.frame = frame
         self.config() #carga todos los valores
+        self.ventanaPrincipal() #crea un tkinter
 
+
+    # FUNCIONES CLASE
+    #--------------------------------------------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------------------------------------------
+    
+    def checkBtn (self, indice):
+              
+        element = self.getElement(indice=indice)
+        self.__class__.dic_historial[element[0]]["dic-info"]['status_info'] = self.check_tarjetas[indice].get()    
+        self.upInfo()
     #CONTENIDO RELOJ
     #--------------------------------------------------------------------------------------------------------------------------------
     #--------------------------------------------------------------------------------------------------------------------------------
@@ -28,6 +46,7 @@ class AlarmaReloj(Reloj, InfoSED):
         # Ruta al archivo YAML de configuración
         routes = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'route-link.yaml'
         messages = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'message.yaml'
+        app = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'app.yaml'
         
         config = None
         #cargar las configuraciones
@@ -39,7 +58,7 @@ class AlarmaReloj(Reloj, InfoSED):
         self.__class__.dir_gif = os.path.join(config['rutas']['gif-default']) #usar os
         #mensajes list 
         self.message = messages['mensajes'] # 1. mensajes-error, 2. mensajes-confirmacion, 3. mensajes-alerta, 4. mensajes-advertencia
-
+        self.app = app['app']
 
     def find(self): # busqueda de informacion
         mensaje = self.message['mensajes-advertencia']['file']
@@ -52,13 +71,55 @@ class AlarmaReloj(Reloj, InfoSED):
             with open (self.__class__.dir_historial,"w") as file:
                 json.dump([], file, indent=4)
 
-    def ventansPrincipal(self):
+    def ventanaPrincipal(self):
+        #variables
+        self.check_tarjetas = {} #guardara en dicc los checks de cada terjeta
+        self.find() # carga los diccionarios
+        frame = self.frame
+        # Mostrara tarjetas
+        for n_fila, tarjeta in enumerate(self.__class__.dic_historial):
+            
+            key = tarjeta['key-dic'] # clave unica
+            alarma = tarjeta['dic-info'] # alarma o informacion del diccionario
+            
+            if alarma['delete_info']: # Condicion de descarte
+               continue 
 
-        pass
+            #Siguiente iteracion
+            tarjeta = ttk.Label(
+                frame,
+                borderwidth=2,
+                relief="solid",
+                padding=10
+            )
+            
+            tarjeta.grid(row=n_fila, column=0, sticky="ew", padx=10, pady=5)
+
+            check = tk.BooleanVar(value=alarma['status_info'])
+
+            self.check_tarjetas[key] = check
+            
+            #check visual
+            btn = ttk.Checkbutton(
+                tarjeta,
+                text=alarma['time_info'],
+                variable=check,
+                command=lambda : self.checkBtn(key)
+            )
+
+            btn.grid(row=0, column=0, sticky=0)
+
+        ttk.Button(frame, text=self.app['btn-add']['btn-alarma'], command=self.ventanaCreate).grid()
+
+        
 
     def ventanaCreate(self):
 
-        pass
+        self.modal = tk.Toplevel(self.frame)
+        self.modal.title(self.app['modal']['modal-alarma'])
+        self.modal.geometry("600x500")
+
+        
 
     #CONTENIDO SED
     #--------------------------------------------------------------------------------------------------------------------------------
