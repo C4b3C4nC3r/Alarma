@@ -10,7 +10,7 @@ import yaml
 import os
 import json
 
-class TemporizadorReloj(Reloj, InfoSED):
+class RelojGlobal(Reloj, InfoSED):
 
     en_uso = False
     dic_historial = []
@@ -63,7 +63,7 @@ class TemporizadorReloj(Reloj, InfoSED):
         with open(messsagesruta,'r') as file_config:
             messages = yaml.safe_load(file_config)
         #info: 
-        self.__class__.dir_historial = os.path.join(config['rutas']['historial-temporizador']) # usar os
+        self.__class__.dir_historial = os.path.join(config['rutas']['historial-reloj']) # usar os
         self.__class__.dir_audio = os.path.join(config['rutas']['sound-default']) #usar os
         self.__class__.dir_gif = os.path.join(config['rutas']['gif-default']) #usar os
         #mensajes list 
@@ -90,9 +90,9 @@ class TemporizadorReloj(Reloj, InfoSED):
         for n_fila, tarjeta in enumerate(self.__class__.dic_historial):
             
             key = tarjeta['key-dic'] # clave unica
-            temporizador = tarjeta['dic-info'] # temporizador o informacion del diccionario
+            reloj = tarjeta['dic-info'] # reloj o informacion del diccionario
             
-            if temporizador['delete_info']: # Condicion de descarte
+            if reloj['delete_info']: # Condicion de descarte
                continue 
 
             #Siguiente iteracion
@@ -105,28 +105,28 @@ class TemporizadorReloj(Reloj, InfoSED):
             
             tarjeta.grid(row=n_fila, column=0, sticky="ew", padx=10, pady=5)
 
-            check = tk.BooleanVar(value=temporizador['status_info'])
+            check = tk.BooleanVar(value=reloj['status_info'])
 
             self.check_tarjetas[key] = check
             
             #check visual
             btn = ttk.Checkbutton(
                 tarjeta,
-                text=temporizador['time_info'],
+                text=reloj['time_info'],
                 variable=check,
                 command=lambda : self.checkBtn(key)
             )
 
             btn.grid(row=0, column=0, sticky=0)
 
-        ttk.Button(frame, text=self.app['btn-add']['btn-temporizador'], command=self.ventanaCreate).grid()
+        ttk.Button(frame, text=self.app['btn-add']['btn-reloj'], command=self.ventanaCreate).grid()
 
         
 
     def ventanaCreate(self):
 
         self.modal = tk.Toplevel(self.frame)
-        self.modal.title(self.app['modal']['modal-temporizador'])
+        self.modal.title(self.app['modal']['modal-reloj'])
         self.modal.geometry("600x500")
 
         
@@ -152,9 +152,9 @@ class TemporizadorReloj(Reloj, InfoSED):
             #info a guardar
             dic_info :{
                 'delete_info': False, # parametro que nos ayuda a limpiar la lista antes de cerrar aplicacion
-                'status_info': True, # estado de la temporizador activa o no
-                'name_info': None, #nombre d ela temporizador
-                'time_info': None, # las hora que suena la temporizador
+                'status_info': True, # estado de la reloj activa o no
+                'name_info': None, #nombre d ela reloj
+                'time_info': None, # las hora que suena la reloj
                 'semana_info': None, # si se repite toda la semana
                 'dias_semanas_info': dias_semana_info, #lista de dias activos
                 'intervalo_info': None, #tiempo en cada posponer 
@@ -167,7 +167,7 @@ class TemporizadorReloj(Reloj, InfoSED):
                 'dic-info': dic_info 
             }
             
-            self.__class__.dic_historial.append(dicc) #creacion de una nueva temporizador
+            self.__class__.dic_historial.append(dicc) #creacion de una nueva reloj
 
             self.upInfo() # dic_historial, se subira segun las modificacionsufridas en seccion, para efectuar esta funcion
 

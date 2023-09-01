@@ -9,6 +9,31 @@ app:
 
   app-version: 4.0.0
 
+  main-config:
+    bg: black
+    geo: 1200x600
+    #app-name
+    protocol-del: WM_DELETE_WINDOW
+    
+  frame-config:
+    bg: black
+    op-row: 1
+    op-col: 0
+    cont-row: 1
+    cont-col: 1
+    padx: 10
+    pady: 10
+    op-sticky: ns 
+    cont-sticky: nsew
+
+    btn-op-alarma: Alarma
+    btn-op-reloj: Reloj Global
+    btn-op-temporizador: Temporizador
+    btn-op-crono: Cronometro
+
+
+    
+
   modal:
     modal-alarma: Nueva Alarma
     modal-temporizador: Nuevo Temporizador
@@ -26,5 +51,6 @@ app:
     btn-temporizador: Remover Temporizador
     btn-crono: Remover Cronometro
     btn-reloj: Remover Reloj
+
 
   

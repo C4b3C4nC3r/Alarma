@@ -9,13 +9,14 @@ rutas:
   historial-temporizador: data/historial/historial_temporizador.json
   historial-alarma: data/historial/historial_alarma.json
   historial-cronometro: data/historial/historial_cronometro.json
+  historial-reloj: data/historial/historial_reloj.json
  
  
   # rutas de default 
 
   credit-sound: data/credit_sounds/creditos.txt
   sound-default: data/d_alarm_sounds/herta singing kururing.mp3
-  gif-default: #pon tu gif
+  gif-default: none
 
   #rutas de otros yaml
   message: reloj/config/message.yaml

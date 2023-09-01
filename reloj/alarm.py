@@ -36,6 +36,8 @@ class AlarmaReloj(Reloj, InfoSED):
         element = self.getElement(indice=indice)
         self.__class__.dic_historial[element[0]]["dic-info"]['status_info'] = self.check_tarjetas[indice].get()    
         self.upInfo()
+
+    
     #CONTENIDO RELOJ
     #--------------------------------------------------------------------------------------------------------------------------------
     #--------------------------------------------------------------------------------------------------------------------------------
@@ -45,13 +47,21 @@ class AlarmaReloj(Reloj, InfoSED):
     def config(self): # AGregar configuracion con la ayuda del .yaml
         # Ruta al archivo YAML de configuración
         routes = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'route-link.yaml'
-        messages = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'message.yaml'
-        app = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'app.yaml'
+        messsagesruta = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'message.yaml'
+        appruta = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'app.yaml'
         
         config = None
+        messages = None
+        app = None
         #cargar las configuraciones
         with open(routes,'r') as file_config:
             config = yaml.safe_load(file_config)
+        #cargar las app
+        with open(appruta,'r') as file_config:
+            app = yaml.safe_load(file_config)
+        #cargar las messages
+        with open(messsagesruta,'r') as file_config:
+            messages = yaml.safe_load(file_config)
         #info: 
         self.__class__.dir_historial = os.path.join(config['rutas']['historial-alarma']) # usar os
         self.__class__.dir_audio = os.path.join(config['rutas']['sound-default']) #usar os

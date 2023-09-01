@@ -6,3 +6,9 @@ Descripción: Este programa ejecuta la aplicación de reloj, la cual permite la 
 para el usario.
 """
 
+from reloj.vista import Running
+
+if __name__ == "__main__":
+    app = Running()
+
+    app.mainloop()
