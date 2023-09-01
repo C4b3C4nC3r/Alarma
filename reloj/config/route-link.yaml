@@ -8,7 +8,7 @@ rutas:
 
   historial-temporizador: data/historial/historial_temporizador.json
   historial-alarma: data/historial/historial_alarma.json
-  historial-cronometro: data/historial/historial_cronometro.json
+  historial-crono: data/historial/historial_cronometro.json
   historial-reloj: data/historial/historial_reloj.json
  
  

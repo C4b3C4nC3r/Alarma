@@ -216,3 +216,18 @@ class RelojGlobal(Reloj, InfoSED):
         objeto_encontrado = next(([key_in_list,objeto] for key_in_list,objeto in enumerate(lista_objetos) if objeto["key-dic"] == indice), None)
         
         return objeto_encontrado
+    
+    #eliminar cada vez si existe un delete_info true
+    def trash (self):
+        self.find()
+        for n_fila, tarjeta in enumerate(self.__class__.dic_historial):
+            
+            alarma = tarjeta['dic-info'] #
+            
+            if not alarma['delete_info']: # Condicion de descarte
+                continue
+               
+            self.__class__.dic_historial.pop(n_fila) #eliminadmos 
+
+        
+        self.upInfo()

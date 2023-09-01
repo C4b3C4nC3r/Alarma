@@ -53,4 +53,8 @@ app:
     btn-reloj: Remover Reloj
 
 
-  
+  default:
+    alarma: alarma
+    temporizador: temporizador
+    reloj: reloj
+    crono: crono

@@ -18,6 +18,12 @@ class Running(tk.Tk):
         self.frame_opcion = None
         self.frame_contenido = None
 
+        #objetos 
+        self.reloj = None
+        self.alarma = None
+        self.temporizador = None
+        self.crono = None
+
         #cargar la app
         self.configWindows()
     #vistas
@@ -41,7 +47,7 @@ class Running(tk.Tk):
         self.btn_reloj = ttk.Button(self.frame_opcion,text=self.app['frame-config']['btn-op-reloj'],command=self.getReloj)
         self.btn_nueva_alarma = ttk.Button(self.frame_opcion,text=self.app['frame-config']['btn-op-alarma'], command=self.getAlarmas)
         self.btn_nuevo_temporizador = ttk.Button(self.frame_opcion,text=self.app['frame-config']['btn-op-temporizador'], command=self.getTemporizadores)
-        self.btn_nuevo_crono = ttk.Button(self.frame_opcion,text=self.app['frame-config']['btn-op-crono'], command=self.getTemporizadores)
+        self.btn_nuevo_crono = ttk.Button(self.frame_opcion,text=self.app['frame-config']['btn-op-crono'], command=self.getCrono)
         
 
         self.btn_reloj.grid()
@@ -100,5 +106,21 @@ class Running(tk.Tk):
             widget.grid_forget()
 
     def on_closing(self):
-        self.destroy()
         
+        self.trash()
+
+        #destruir app
+        self.destroy()
+    
+    def trash(self):
+        if not self.alarma == None:
+            self.alarma.trash()
+
+        if not self.reloj == None:
+            self.reloj.trash()
+
+        if not self.temporizador == None:
+            self.temporizador.trash()
+
+        if not self.crono == None:
+            self.crono.trash()
