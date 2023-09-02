@@ -29,10 +29,7 @@ app:
     btn-op-alarma: Alarma
     btn-op-reloj: Reloj Global
     btn-op-temporizador: Temporizador
-    btn-op-crono: Cronometro
-
-
-    
+    btn-op-crono: Cronometro    
 
   modal:
     modal-alarma: Nueva Alarma

@@ -1,6 +1,7 @@
 from abc_app.reloj import Reloj
 from abc_app.sed import InfoSED
 from pathlib import Path
+from reloj.generador_clave import KeyDicc
 
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -162,7 +163,7 @@ class AlarmaReloj(Reloj, InfoSED):
         # Mostrara tarjetas
         for n_fila, tarjeta in enumerate(self.__class__.dic_historial):
             
-            key = tarjeta['key-dic'] # clave unica
+            key = tarjeta['key-dic'][0] # clave unica
             alarma = tarjeta['dic-info'] # alarma o informacion del diccionario
             
             if alarma['delete_info']: # Condicion de descarte
@@ -185,12 +186,12 @@ class AlarmaReloj(Reloj, InfoSED):
             #check visual
             btn = ttk.Checkbutton(
                 tarjeta,
-                text=alarma['time_info'],
+                text=f"Hora: {alarma['time_info']} \n {alarma['name_info']}",
                 variable=check,
                 command=lambda : self.checkBtn(key)
             )
 
-            btn.grid(row=0, column=0, sticky=0)
+            btn.grid(row=0, column=0, sticky='w')
 
         ttk.Button(frame, text=self.app['btn-add']['btn-alarma'], command=self.ventanaCreate).grid()
 
@@ -212,47 +213,65 @@ class AlarmaReloj(Reloj, InfoSED):
 
 
     def saveInfo(self): #Guardar Info
+        #claves instance
+        gen = KeyDicc()
+
+
         mensaje_confirmacion = self.message['mensajes-confirmacion']['guardar'] #comienzo
-        mensaje_alerta = self.message['mensaje-alerte']['guardar'] #fin
+        mensaje_alerta = self.message['mensajes-alerta']['guardar'] #fin
         
-        if True:
+        if messagebox.askyesno(title=self.app['modal']['modal-alarma'],message=mensaje_confirmacion, parent=self.modal):
             #configuracion del dic_historial
             dias_semana_info = []
+            dic_info = {}
+            dicc = {}
 
-            #clave de la info
-            key_dic = ""
+            for dia, var in zip(self.dia_de_la_semana,self.check_boxes):
+                dias_semana_info.append({dia:var.get()})
+
+            time_val = f"{self.cmb_h.get()}:{self.cmb_m.get()}"
+            #clave de la info  hora name minuto intervalo
+            key_dic = gen.getKey()
 
             #info a guardar
-            dic_info :{
-                'delete_info': False, # parametro que nos ayuda a limpiar la lista antes de cerrar aplicacion
-                'status_info': True, # estado de la alarma activa o no
-                'name_info': self.name_alarm.get() if not len(self.name_alarm.get()) == 0 else self.app['default']['alarma'], #nombre d ela alarma
-                'time_info': None, # las hora que suena la alarma
-                'semana_info': None, # si se repite toda la semana
-                'dias_semanas_info': dias_semana_info, #lista de dias activos
-                'intervalo_info': None, #tiempo en cada posponer 
-                'audio_info': None
-            }
+            
+            dic_info['delete_info'] = False
+            dic_info['status_info'] = True
+            dic_info['name_info'] = self.name_alarm.get()
+            dic_info['time_info'] = time_val
+            dic_info['dias_semana_info'] = dias_semana_info
+            dic_info['intervalo_info'] = self.cmb_posponer.get()
+            dic_info['audio_info'] = self.dir_audio
+            
+            # dic_info :{
+            #     'delete_info': False, # parametro que nos ayuda a limpiar la lista antes de cerrar aplicacion
+            #     'status_info': True, # estado de la alarma activa o no
+            #     'name_info': self.name_alarm.get() if not len(self.name_alarm.get()) == 0 else self.app['default']['alarma'], #nombre d ela alarma
+            #     'time_info': time_val, # las hora que suena la alarma
+            #     'dias_semanas_info': dias_semana_info, #lista de dias activos
+            #     'intervalo_info': self.cmb_posponer.get(), #tiempo en cada posponer 
+            #     'audio_info': self.dir_audio
+            # }
 
             #diccionario que contiene una clave unica y el diccionario de datos
-            dicc : {
-                'key-dic': key_dic,
-                'dic-info': dic_info 
-            }
+            dicc['key-dic'] = key_dic,
+            dicc['dic-info'] =  dic_info 
             
             self.__class__.dic_historial.append(dicc) #creacion de una nueva alarma
 
             self.upInfo() # dic_historial, se subira segun las modificacionsufridas en seccion, para efectuar esta funcion
+            
+            messagebox.showinfo(title=self.app['modal']['modal-alarma'], message=mensaje_alerta, parent=self.modal)
 
     def editInfo(self): #Moficiar Info
         mensaje_confirmacion = self.message['mensajes-confirmacion']['editar'] #comienzo
-        mensaje_alerta = self.message['mensaje-alerte']['editar'] #fin
+        mensaje_alerta = self.message['mensajes-alerta']['editar'] #fin
 
         self.upInfo() # dic_historial, se subira segun las modificacionsufridas en seccion, para efectuar esta funcion
     
     def deleteInfo(self, indice=None): #Eliminar Info
         mensaje_confirmacion = self.message['mensajes-confirmacion']['eliminar'] #comienzo
-        mensaje_alerta = self.message['mensaje-alerte']['eliminar'] #fin
+        mensaje_alerta = self.message['mensajes-alerta']['eliminar'] #fin
 
         if True:
 
