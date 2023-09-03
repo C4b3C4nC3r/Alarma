@@ -17,13 +17,14 @@ mensajes:
     guardar: La informacion que adjunto, requiere guardarla?. Presione si o no
     eliminar: La accion de eliminar o dar de baja la informacion, es "irreversible". Presione si o no.
     editar: La accion de actualizar o modificar la informacion, es "irreversible". Presione si o no.
+    check: La accion de la palomita, se esta modificando. Presione si o no
 
   mensajes-alerta:
     # Mensajes de alerta: mensajes que saldran en las SED, esto solo alerta lo que acabas de realizar
     guardar: La informacion que adjunto fue guardada con exito, presione ok.
     eliminar: La accion de eliminar o dar de baja la informacion, fue exitoso, presione ok.
     editar: La accion de actualizaro modificar la informacion, fue exitoso, preisone ok.
-
+    check: La accion de la palomita, se ha modificado, presione ok.
 
   mensajes-advertencia:
     # Mensajes de advertencia: mensajes que saldra cuando alcansaste el liminte en el historial

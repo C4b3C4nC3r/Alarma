@@ -106,11 +106,17 @@ class AlarmaReloj(Reloj, InfoSED):
 
 
     def checkBtn (self, indice):
-              
-        element = self.getElement(indice=indice)
-        self.__class__.dic_historial[element[0]]["dic-info"]['status_info'] = self.check_tarjetas[indice].get()    
-        self.upInfo()
+        title = self.app['modal-check']['check-alarma']
+        message = self.message['mensajes-confirmacion']['check']
+        message_alert = self.message['mensajes-alerta']['check']
+        #antes de desactivar:
 
+        if messagebox.askyesno(title=title,message=message):
+        
+            element = self.getElement(indice=indice)
+            self.__class__.dic_historial[element[0]]["dic-info"]['status_info'] = self.check_tarjetas[indice].get()    
+            self.upInfo()
+            messagebox.showinfo(title=title,message=message_alert)
     
     #CONTENIDO RELOJ
     #--------------------------------------------------------------------------------------------------------------------------------
@@ -188,7 +194,7 @@ class AlarmaReloj(Reloj, InfoSED):
                 tarjeta,
                 text=f"Hora: {alarma['time_info']} \n {alarma['name_info']}",
                 variable=check,
-                command=lambda : self.checkBtn(key)
+                command=lambda indice = key : self.checkBtn(indice=indice)
             )
 
             btn.grid(row=0, column=0, sticky='w')
@@ -305,7 +311,7 @@ class AlarmaReloj(Reloj, InfoSED):
     def getElement(self, indice=None):
         lista_objetos = self.__class__.dic_historial
 
-        objeto_encontrado = next(([key_in_list,objeto] for key_in_list,objeto in enumerate(lista_objetos) if objeto["key-dic"] == indice), None)
+        objeto_encontrado = next(([key_in_list,objeto] for key_in_list,objeto in enumerate(lista_objetos) if objeto["key-dic"][0] == indice), None)
         
         return objeto_encontrado
 
