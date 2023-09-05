@@ -62,3 +62,8 @@ app:
     reloj: reloj
     crono: crono
 
+  n_columna_max:
+    alarma: 2
+
+  style:
+    size-a: 15

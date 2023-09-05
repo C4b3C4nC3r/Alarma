@@ -17,6 +17,7 @@ mensajes:
     guardar: La informacion que adjunto, requiere guardarla?. Presione si o no
     eliminar: La accion de eliminar o dar de baja la informacion, es "irreversible". Presione si o no.
     editar: La accion de actualizar o modificar la informacion, es "irreversible". Presione si o no.
+    editar-op : Usted quiere editar o modificar la informacion. Presione si o no.
     check: La accion de la palomita, se esta modificando. Presione si o no
 
   mensajes-alerta:
@@ -30,4 +31,4 @@ mensajes:
     # Mensajes de advertencia: mensajes que saldra cuando alcansaste el liminte en el historial
     guardar: Esta en limite!, la informacion adjuntada eliminara un espacio del historial inactivo.
     file: El archivo no se encuentra para su uso, asi que la aplicacion creara un nuevo archivo, para su uso
-
+    

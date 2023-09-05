@@ -68,39 +68,51 @@ class AlarmaReloj(Reloj, InfoSED):
 
         self.hour = time.strftime("%H")
         self.minute = time.strftime("%M") 
-
-        self.cmb_h = ttk.Combobox(self.modal,values=self.h_list,justify='center',width='12',font='Arial')
-        self.cmb_m = ttk.Combobox(self.modal,values=self.m_list,justify='center',width='12',font='Arial')
+        #cmb de dias de la semana
+        frame_cmb = ttk.Frame(self.modal)
+        frame_cmb.grid(row=1, column=1)
+        
+        self.cmb_h = ttk.Combobox(frame_cmb,values=self.h_list,justify='center',width='12',font='Arial')
+        self.cmb_m = ttk.Combobox(frame_cmb,values=self.m_list,justify='center',width='12',font='Arial')
         self.cmb_h.current(int(self.hour))
         self.cmb_m.current(int(self.minute))
-        self.cmb_h.grid(column=1,row=1)
-        self.cmb_m.grid(column=2,row=1)
+        self.cmb_h.grid(column=1,row=1, padx=5, pady=5)
+        self.cmb_m.grid(column=2,row=1, padx=5, pady=5)
+
         #entry
-        ttk.Label(self.modal,text="Nombre de Alarm").grid(column=1,row=2)
-        self.name_alarm = ttk.Entry(self.modal)
-        self.name_alarm.grid(column=2,row=2)
+        frame_entry = ttk.Frame(self.modal)
+        frame_entry.grid(row=2,column=1)
+        ttk.Label(frame_entry,text="Nombre de Alarm").grid(column=1,row=2, padx=5, pady=5)
+        self.name_alarm = ttk.Entry(frame_entry)
+        self.name_alarm.grid(column=2,row=2, padx=5, pady=5)
 
         #repetir
         self.confirm_var = tk.BooleanVar()
         self.check_confirm = ttk.Checkbutton(self.modal,text="Quiere Repetir esta alarma", variable=self.confirm_var,command=self.activarRepetir)
-        self.check_confirm.grid(column=1,row=3)
+        self.check_confirm.grid(column=1,row=3, padx=5, pady=5)
         #checkbox de dias de la semana
+        frame_check = ttk.Frame(self.modal)
+        frame_check.grid(row=4, column=1)
+
         for indice,dia in enumerate(self.dia_de_la_semana):
             var = tk.BooleanVar()
-            checkbox = ttk.Checkbutton(self.modal, text=dia, variable=var,command=self.activarDias)
-            checkbox.grid(column=indice ,row=4)
+            checkbox = ttk.Checkbutton(frame_check, text=dia, variable=var,command=self.activarDias)
+            checkbox.grid(column=indice ,row=4, padx=5, pady=5)
             self.check_boxes.append(var)
         
         #selector de sonido
-        ttk.Label(self.modal,text="Musica").grid(column=0,row=5)
-        ttk.Button(self.modal,text="Tono... ", command=self.seleccionSonido).grid(column=1,row=5)
-        ttk.Label(self.modal,text="Posponer en").grid(column=0,row=6)
-        self.cmb_posponer = ttk.Combobox(self.modal,values=[5,10,15,20,25,30,60],justify='center',width='12',font='Arial')
-        self.cmb_posponer.current(0)
-        self.cmb_posponer.grid(column=1,row=6) #minute
+        frame_final = ttk.Frame(self.modal)
+        frame_final.grid(row=5,column=1)
 
-        ttk.Button(self.modal, text="Guardar",command=self.saveInfo).grid(column=1, row=7)
-        ttk.Button(self.modal, text="Cancelar",command=self.modal.destroy).grid(column=2,row=7)
+        ttk.Label(frame_final,text="Musica").grid(column=0,row=5, padx=5, pady=5)
+        ttk.Button(frame_final,text="Tono... ", command=self.seleccionSonido).grid(column=1,row=5, padx=5, pady=5)
+        ttk.Label(frame_final,text="Posponer en").grid(column=0,row=6, padx=5, pady=5)
+        self.cmb_posponer = ttk.Combobox(frame_final,values=[5,10,15,20,25,30,60],justify='center',width='12',font='Arial')
+        self.cmb_posponer.current(0)
+        self.cmb_posponer.grid(column=1,row=6, padx=5, pady=5) #minute
+
+        ttk.Button(frame_final, text="Guardar",command=self.saveInfo).grid(column=0, row=7, padx=5, pady=5)
+        ttk.Button(frame_final, text="Cancelar",command=self.modal.destroy).grid(column=1,row=7, padx=5, pady=5)
         # Bloquear interacción con la ventana principal
         self.modal.grab_set()
 
@@ -166,9 +178,14 @@ class AlarmaReloj(Reloj, InfoSED):
         self.check_tarjetas = {} #guardara en dicc los checks de cada terjeta
         self.find() # carga los diccionarios
         frame = self.frame
+        row = 0
+        n_widget = 0        
+
+        estilo =  ttk.Style()
+        estilo.configure("TCheckbutton", font=("Arial", self.app['style']['size-a']))
+
         # Mostrara tarjetas
         for n_fila, tarjeta in enumerate(self.__class__.dic_historial):
-            
             key = tarjeta['key-dic'][0] # clave unica
             alarma = tarjeta['dic-info'] # alarma o informacion del diccionario
             
@@ -183,7 +200,18 @@ class AlarmaReloj(Reloj, InfoSED):
                 padding=10
             )
             
-            tarjeta.grid(row=n_fila, column=0, sticky="ew", padx=10, pady=5)
+            #confirmar si el frame tiene 4 frame para saltar a una nueva fila
+            
+            if isinstance(frame.winfo_children()[n_fila], ttk.Label):
+    
+                tarjeta.grid(row=row, column=n_widget, sticky="ew", padx=10, pady=5)
+    
+                n_widget+=1
+
+                if n_widget == self.app['n_columna_max']['alarma']:
+                    row += 1
+                    n_widget = 0
+            
 
             check = tk.BooleanVar(value=alarma['status_info'])
 
@@ -194,7 +222,8 @@ class AlarmaReloj(Reloj, InfoSED):
                 tarjeta,
                 text=f"Hora: {alarma['time_info']} \n {alarma['name_info']}",
                 variable=check,
-                command=lambda indice = key : self.checkBtn(indice=indice)
+                command=lambda indice = key : self.checkBtn(indice=indice),
+                style="TCheckbutton"
             )
 
             btn.grid(row=0, column=0, sticky='w')
@@ -207,7 +236,7 @@ class AlarmaReloj(Reloj, InfoSED):
 
         self.modal = tk.Toplevel(self.frame)
         self.modal.title(self.app['modal']['modal-alarma'])
-        self.modal.geometry("600x500")
+        self.modal.geometry("550x300")
         self.contenidoVentanaCreate()
         
 
