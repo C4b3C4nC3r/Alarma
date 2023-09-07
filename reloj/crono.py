@@ -26,10 +26,6 @@ class CronoReloj(Reloj, InfoSED):
 
 
     # FUNCIONES CLASE
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
     
     def checkBtn (self, indice):
               
@@ -39,11 +35,7 @@ class CronoReloj(Reloj, InfoSED):
 
     
     #CONTENIDO RELOJ
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-
+    
     def config(self): # AGregar configuracion con la ayuda del .yaml
         # Ruta al archivo YAML de configuración
         routes = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'route-link.yaml'
@@ -121,23 +113,13 @@ class CronoReloj(Reloj, InfoSED):
 
         ttk.Button(frame, text=self.app['btn-add']['btn-crono'], command=self.ventanaCreate).grid()
 
-        
-
     def ventanaCreate(self):
 
         self.modal = tk.Toplevel(self.frame)
         self.modal.title(self.app['modal']['modal-crono'])
         self.modal.geometry("600x500")
 
-        
-
     #CONTENIDO SED
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-
-
     def saveInfo(self): #Guardar Info
         mensaje_confirmacion = self.message['mensajes-confirmacion']['guardar'] #comienzo
         mensaje_alerta = self.message['mensaje-alerte']['guardar'] #fin
@@ -155,10 +137,7 @@ class CronoReloj(Reloj, InfoSED):
                 'status_info': True, # estado de la crono activa o no
                 'name_info': None, #nombre d ela crono
                 'time_info': None, # las hora que suena la crono
-                'semana_info': None, # si se repite toda la semana
-                'dias_semanas_info': dias_semana_info, #lista de dias activos
                 'intervalo_info': None, #tiempo en cada posponer 
-                'audio_info': None
             }
 
             #diccionario que contiene una clave unica y el diccionario de datos

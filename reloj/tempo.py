@@ -26,10 +26,6 @@ class TemporizadorReloj(Reloj, InfoSED):
 
 
     # FUNCIONES CLASE
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
     
     def checkBtn (self, indice):
               
@@ -39,11 +35,7 @@ class TemporizadorReloj(Reloj, InfoSED):
 
     
     #CONTENIDO RELOJ
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-
+    
     def config(self): # AGregar configuracion con la ayuda del .yaml
         # Ruta al archivo YAML de configuración
         routes = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'route-link.yaml'
@@ -155,9 +147,6 @@ class TemporizadorReloj(Reloj, InfoSED):
                 'status_info': True, # estado de la temporizador activa o no
                 'name_info': None, #nombre d ela temporizador
                 'time_info': None, # las hora que suena la temporizador
-                'semana_info': None, # si se repite toda la semana
-                'dias_semanas_info': dias_semana_info, #lista de dias activos
-                'intervalo_info': None, #tiempo en cada posponer 
                 'audio_info': None
             }
 

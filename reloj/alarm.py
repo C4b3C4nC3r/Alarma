@@ -20,7 +20,6 @@ class AlarmaReloj(Reloj, InfoSED):
     dir_audio = None 
     dir_gif = None 
 
-
     def __init__(self, frame):
         super().__init__()
         self.frame = frame
@@ -42,11 +41,7 @@ class AlarmaReloj(Reloj, InfoSED):
             self.m_list.append(i)
 
     # FUNCIONES CLASE
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    
+
     def activarRepetir(self):
         if not self.confirm_var.get():
             for var in self.__class__.check_boxes:
@@ -116,7 +111,6 @@ class AlarmaReloj(Reloj, InfoSED):
         # Bloquear interacción con la ventana principal
         self.modal.grab_set()
 
-
     def checkBtn (self, indice):
         title = self.app['modal-check']['check-alarma']
         message = self.message['mensajes-confirmacion']['check']
@@ -131,10 +125,6 @@ class AlarmaReloj(Reloj, InfoSED):
             messagebox.showinfo(title=title,message=message_alert)
     
     #CONTENIDO RELOJ
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
 
     def config(self): # AGregar configuracion con la ayuda del .yaml
         # Ruta al archivo YAML de configuración
@@ -182,7 +172,7 @@ class AlarmaReloj(Reloj, InfoSED):
         n_widget = 0        
 
         estilo =  ttk.Style()
-        estilo.configure("TCheckbutton", font=("Arial", self.app['style']['size-a']))
+        estilo.configure("Custom.TCheckbutton", font=("Arial", self.app['style']['size-a']))
 
         # Mostrara tarjetas
         for n_fila, tarjeta in enumerate(self.__class__.dic_historial):
@@ -212,7 +202,6 @@ class AlarmaReloj(Reloj, InfoSED):
                     row += 1
                     n_widget = 0
             
-
             check = tk.BooleanVar(value=alarma['status_info'])
 
             self.check_tarjetas[key] = check
@@ -223,14 +212,25 @@ class AlarmaReloj(Reloj, InfoSED):
                 text=f"Hora: {alarma['time_info']} \n {alarma['name_info']}",
                 variable=check,
                 command=lambda indice = key : self.checkBtn(indice=indice),
-                style="TCheckbutton"
+                style="Custom.TCheckbutton",
             )
 
             btn.grid(row=0, column=0, sticky='w')
 
         ttk.Button(frame, text=self.app['btn-add']['btn-alarma'], command=self.ventanaCreate).grid()
 
-        
+    def tarjetasAlarm(self, key = str, alarma = dict): 
+        pass
+
+    def clearEntradas(self):
+        self.cmb_h.set(time.strftime("%H"))
+        self.cmb_m.set(time.strftime("%M"))
+        self.name_alarm.delete(0,tk.END)
+        self.cmb_posponer.set(5)
+        #desactivar los checks
+        for var in self.check_boxes:
+            var.set(False)
+        self.confirm_var.set(False)
 
     def ventanaCreate(self):
 
@@ -238,19 +238,12 @@ class AlarmaReloj(Reloj, InfoSED):
         self.modal.title(self.app['modal']['modal-alarma'])
         self.modal.geometry("550x300")
         self.contenidoVentanaCreate()
-        
 
     #CONTENIDO SED
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------------------------
-
 
     def saveInfo(self): #Guardar Info
         #claves instance
         gen = KeyDicc()
-
 
         mensaje_confirmacion = self.message['mensajes-confirmacion']['guardar'] #comienzo
         mensaje_alerta = self.message['mensajes-alerta']['guardar'] #fin
@@ -297,6 +290,7 @@ class AlarmaReloj(Reloj, InfoSED):
             self.upInfo() # dic_historial, se subira segun las modificacionsufridas en seccion, para efectuar esta funcion
             
             messagebox.showinfo(title=self.app['modal']['modal-alarma'], message=mensaje_alerta, parent=self.modal)
+            self.clearEntradas()
 
     def editInfo(self): #Moficiar Info
         mensaje_confirmacion = self.message['mensajes-confirmacion']['editar'] #comienzo
@@ -343,7 +337,6 @@ class AlarmaReloj(Reloj, InfoSED):
         objeto_encontrado = next(([key_in_list,objeto] for key_in_list,objeto in enumerate(lista_objetos) if objeto["key-dic"][0] == indice), None)
         
         return objeto_encontrado
-
     #eliminar cada vez si existe un delete_info true
     def trash (self):
         self.find()
