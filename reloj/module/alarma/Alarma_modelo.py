@@ -3,10 +3,11 @@ import time
 import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+from reloj.generador_key import KeyDicc
 
-class AlarmaModelo ():
+class AlarmaModelo (KeyDicc):
     def __init__(self):
-        super.__init__()
+        super().__init__()
         self.check_actividad_tarjetas = {} #guardar el estado de cada tarjeta con un var check
         self.check_drop_tarjetas = {} #guardar el listado de tarjetas a eliminar #eliminacion multiple
         self.listado_tarjetas = {} #guardar el listado de tarjetas que fueron mostradas
@@ -31,7 +32,7 @@ class AlarmaModelo ():
 
         for n, target in enumerate(self.dic_alarm):
             key = target['key-dic'][0]
-            dic_info = target['dic-info']
+            dic_info = target[key]
 
             if dic_info['delete_info']:
                 continue #nueva iteracion
@@ -100,9 +101,9 @@ class AlarmaModelo ():
             self.listado_tarjetas[key] = target_alarm #targetas en arranque
 
 
-        ttk.Button(text=app['btn-add']['btn-alarma'], command=self.viewCreateTarget) #agregar nueva alarma
-        ttk.Button(text=app['btn-remove']['btn-alarma'],command=self.delMulipleView) #para hacer eliminacion multiple
-        ttk.Button(text=app['btn-remove']['btn-all'], command=self.selAll,state=tk.DISABLED)
+        ttk.Button(text=app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0) #agregar nueva alarma
+        ttk.Button(text=app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1) #para hacer eliminacion multiple
+        ttk.Button(text=app['btn-remove']['btn-all'], command=self.selAll,state=tk.DISABLED).grid(column=2)
 
     #funciones en loop de view
     def editCheckTarget(self, index = str): #editar en loop
@@ -124,6 +125,7 @@ class AlarmaModelo ():
         self.minute_info = tk.StringVar()
         self.intervalo_info = tk.StringVar()
         self.dir_audio = os.path.join(self.route['sound-default'])
+        self.confirm_var = tk.BooleanVar()
         #self.dias_semana = None
         self.status_info = False
         self.delete_info = False
@@ -150,7 +152,6 @@ class AlarmaModelo ():
         ttk.Label(frame_2,text="Nombre Alarma").grid(column=1)
         ttk.Entry(frame_2,textvariable=self.name_info).grid(column=1)
 
-        self.confirm_var = tk.BooleanVar()
         ttk.Checkbutton(frame_3,text="Repeticion", variable=self.confirm_var,command=self.interactiveCheckDias).grid(row=0)
         #checkbox de dias de la semana
         for indice,dia in enumerate(self.dias):
@@ -199,14 +200,43 @@ class AlarmaModelo ():
         pass
     
     def save(self):
-        pass
+        dicc_info = {}
+        dicc = self.getData()
+        key =  self.getKey()       
+        
+        dicc_info["key_dicc"] = key
+        dicc_info[key] = dicc
+
+        self.dic_alarm.append(dicc_info)
+
+        self.setData()
+        self.upData()
+
+        #codigo para actualizar la vista
+
 
     #funciones para guardar
     def getData(self):
-        pass
+        return {
+            "name_info":self.name_info if len(self.name_info) > 0 else "Alama",
+            "hour_info":self.hour_info,
+            "minute_info":self.minute_info,
+            "time_info":f"{self.hour_info} : {self.minute_info}", 
+            "intervalo_info": self.intervalo_info,
+            "dir_audio":self.dir_audio,
+            "dias_info": [{dia:var.get()} for dia, var in zip(self.dias,self.check_dias)] #generar un fila objecto
+        }
 
     def setData(self):
-        pass
+        self.name_info.set()
+        self.hour_info.set()
+        self.minute_info.set()
+        self.intervalo_info.set("5")
+        self.dir_audio = os.path.join(self.route['sound-default'])
+        self.confirm_var = False
+        #uncheck all dias
+        [var.set(False) for var in self.check_dias]
+
 
     def interativeData(self):
         pass
