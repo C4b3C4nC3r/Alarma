@@ -48,13 +48,13 @@ app:
     btn-temporizador: Remover Temporizador
     btn-crono: Remover Cronometro
     btn-reloj: Remover Reloj
+    btn-all: Remover Todo
 
   modal-check:
     check-alarma: Alarma Palomita
     check-temporizador: Temporizador Palomita
     check-crono: Cronometro Palomita
     check-reloj: Reloj Palomita
-
 
   default:
     alarma: alarma

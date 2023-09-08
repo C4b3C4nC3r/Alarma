@@ -17,8 +17,6 @@ class AlarmaModelo (KeyDicc):
         self.hours = [h for h in range(0,23)]
         self.minutes = [m for m in range(0,59)]
 
-
-
     def view(self, frame = ttk.Frame, dic_alarm = list, app = None, route = None, message = None):
         
         self.frame = frame #almacenar el frame contenido
@@ -101,9 +99,9 @@ class AlarmaModelo (KeyDicc):
             self.listado_tarjetas[key] = target_alarm #targetas en arranque
 
 
-        ttk.Button(text=app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0) #agregar nueva alarma
-        ttk.Button(text=app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1) #para hacer eliminacion multiple
-        ttk.Button(text=app['btn-remove']['btn-all'], command=self.selAll,state=tk.DISABLED).grid(column=2)
+        ttk.Button(self.frame,text=self.app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0, row=0) #agregar nueva alarma
+        ttk.Button(self.frame,text=self.app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1,row=0) #para hacer eliminacion multiple
+        ttk.Button(self.frame,text=self.app['btn-remove']['btn-all'], command=self.selAll,state=tk.DISABLED).grid(column=2,row=0)
 
     #funciones en loop de view
     def editCheckTarget(self, index = str): #editar en loop
@@ -135,24 +133,29 @@ class AlarmaModelo (KeyDicc):
         self.modal.title(self.app['modal']['modal-alarma'])
         self.modal.geometry("600x500")
 
-        frame_1 = ttk.Frame(self.modal).grid(row=0) #parte donde ira el cmb
-        frame_2 = ttk.Frame(self.modal).grid(row=1) #parte donde ira el label y entry
-        frame_3 = ttk.Frame(self.modal).grid(row=2) #parte donde ira los checks
-        frame_4 = ttk.Frame(self.modal).grid(row=3) #parte donde ira file y posponer
-        frame_5 = ttk.Frame(self.modal).grid(row=4) #parte donde btns
+        frame_1 = ttk.Frame(self.modal) #parte donde ira el cmb
+        frame_1.grid(row=0,column=0)
+        frame_2 = ttk.Frame(self.modal) #parte donde ira el label y entry
+        frame_2.grid(row=1,column=0)
+        frame_3 = ttk.Frame(self.modal) #parte donde ira los checks
+        frame_3.grid(row=2,column=0)
+        frame_4 = ttk.Frame(self.modal) #parte donde ira file y posponer
+        frame_4.grid(row=3,column=0)
+        frame_5 = ttk.Frame(self.modal) #parte donde btns
+        frame_5.grid(row=4,column=0)
 
         hour_info = ttk.Combobox(frame_1,values=self.hours, textvariable=self.hour_info)
         hour_info.current(time.strftime("%H"))
-        hour_info.grid(column=0)
+        hour_info.grid(column=0, row=0)
 
         minute_info = ttk.Combobox(frame_1,values=self.minutes,textvariable=self.minute_info)
         minute_info.current(time.strftime("%H"))
-        minute_info.grid(column=1)
+        minute_info.grid(column=1, row=0)
 
-        ttk.Label(frame_2,text="Nombre Alarma").grid(column=1)
-        ttk.Entry(frame_2,textvariable=self.name_info).grid(column=1)
+        ttk.Label(frame_2,text="Nombre Alarma").grid(column=1,row=1)
+        ttk.Entry(frame_2,textvariable=self.name_info).grid(column=1,row=1)
 
-        ttk.Checkbutton(frame_3,text="Repeticion", variable=self.confirm_var,command=self.interactiveCheckDias).grid(row=0)
+        ttk.Checkbutton(frame_3,text="Repeticion", variable=self.confirm_var,command=self.interactiveCheckDias).grid(row=0, column=0)
         #checkbox de dias de la semana
         for indice,dia in enumerate(self.dias):
             var = tk.BooleanVar()

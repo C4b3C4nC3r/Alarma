@@ -27,9 +27,10 @@ class Running(tk.Tk):
         ttk.Button(opciones_frame, text="ALARMA", command=lambda frame = contenido_frame :self.getAlarma(frame=frame)).grid()
 
     def getAlarma(self, frame):
-        self.alarma = Alarma(frame=frame,config=self.config())
+        config = self.config()
+        self.alarma = Alarma(frame=frame,config=config)
 
-    def config():
+    def config(self):
         # Ruta al archivo YAML de configuración
         routes = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'route-link.yaml'
         messsagesruta = Path(__file__).resolve().parent.parent / 'reloj' / 'config' / 'message.yaml'
@@ -48,4 +49,4 @@ class Running(tk.Tk):
         with open(messsagesruta,'r') as file_config:
             messages = yaml.safe_load(file_config)
         
-        return {"routes":config,"app":app, "menssage": messages}
+        return {"routes":config['rutas'],"app":app['app'], "menssage": messages['mensajes']}
