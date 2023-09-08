@@ -1,4 +1,6 @@
 #SEDV(SAVE - EDIT - ELIMINAR - VIEW)
+import time
+import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
@@ -8,13 +10,21 @@ class AlarmaModelo ():
         self.check_actividad_tarjetas = {} #guardar el estado de cada tarjeta con un var check
         self.check_drop_tarjetas = {} #guardar el listado de tarjetas a eliminar #eliminacion multiple
         self.listado_tarjetas = {} #guardar el listado de tarjetas que fueron mostradas
+        self.check_dias = [] #Guardar los valors de losdias
+        self.dias = ["Lunes","Martes", "Miercoles","Jueves","Viernes","Sabado","Domingo"]
+        self.intervalos_minutes = [5,10,15,30,60]
+        self.hours = [h for h in range(0,23)]
+        self.minutes = [m for m in range(0,59)]
 
 
-    def view(self, frame = ttk.Frame, dic_alarm = list, app = None):
+
+    def view(self, frame = ttk.Frame, dic_alarm = list, app = None, route = None, message = None):
         
         self.frame = frame #almacenar el frame contenido
         self.dic_alarm = dic_alarm #almacena todas las trajetas
         self.app = app
+        self.message = message
+        self.route = route
 
         row_frame = 0 #numero de fila en frame
         n_childrenw = 0 #numero de hijos del frame
@@ -109,8 +119,77 @@ class AlarmaModelo ():
 
     def viewCreateTarget(self): #generar vista para agregar
         print("vista para crear")
-        pass
+        self.name_info = tk.StringVar()
+        self.hour_info = tk.StringVar()
+        self.minute_info = tk.StringVar()
+        self.intervalo_info = tk.StringVar()
+        self.dir_audio = os.path.join(self.route['sound-default'])
+        #self.dias_semana = None
+        self.status_info = False
+        self.delete_info = False
+
+        #modal
+        self.modal = tk.Toplevel(self.frame)
+        self.modal.title(self.app['modal']['modal-alarma'])
+        self.modal.geometry("600x500")
+
+        frame_1 = ttk.Frame(self.modal).grid(row=0) #parte donde ira el cmb
+        frame_2 = ttk.Frame(self.modal).grid(row=1) #parte donde ira el label y entry
+        frame_3 = ttk.Frame(self.modal).grid(row=2) #parte donde ira los checks
+        frame_4 = ttk.Frame(self.modal).grid(row=3) #parte donde ira file y posponer
+        frame_5 = ttk.Frame(self.modal).grid(row=4) #parte donde btns
+
+        hour_info = ttk.Combobox(frame_1,values=self.hours, textvariable=self.hour_info)
+        hour_info.current(time.strftime("%H"))
+        hour_info.grid(column=0)
+
+        minute_info = ttk.Combobox(frame_1,values=self.minutes,textvariable=self.minute_info)
+        minute_info.current(time.strftime("%H"))
+        minute_info.grid(column=1)
+
+        ttk.Label(frame_2,text="Nombre Alarma").grid(column=1)
+        ttk.Entry(frame_2,textvariable=self.name_info).grid(column=1)
+
+        self.confirm_var = tk.BooleanVar()
+        ttk.Checkbutton(frame_3,text="Repeticion", variable=self.confirm_var,command=self.interactiveCheckDias).grid(row=0)
+        #checkbox de dias de la semana
+        for indice,dia in enumerate(self.dias):
+            var = tk.BooleanVar()
+            ttk.Checkbutton(frame_3, text=dia, variable=var,command=self.interactiveCheck).grid(column=indice ,row=1)
+            self.check_dias.append(var)
     
+        ttk.Label(frame_4, text="Musica").grid(row=0, column=0)
+        ttk.Button(frame_4, text="Tono", command=self.interactiveDirAudio).grid(row=0, column=1)
+
+        ttk.Label(frame_4, text="Posponer").grid(row=1, column=0)
+        intervalo_info = ttk.Combobox(frame_4, values=self.intervalos_minutes,textvariable=self.intervalo_info)
+        intervalo_info.current(0)
+        intervalo_info.grid(row=1, column=1)
+
+        ttk.Button(frame_5, text="Guardar",command=self.save).grid(column=0)
+        ttk.Button(frame_5, text="Cancelar",command=self.modal.destroy).grid(column=0)
+
+        self.modal.grab_set()
+
+    def interactiveCheckDias(self):
+        if not self.confirm_var.get():
+            for var in self.check_dias:
+                var.set(False)
+    
+    def interactiveCheck(self):
+        valores = [var.get() for var in self.check_dias]
+        if any(valores):  
+            self.confirm_var.set(True)
+        else:
+            self.confirm_var.set(False)
+    
+    def interactiveDirAudio(self):
+        filetypes = (("MP3 Files", "*.mp3"),)
+        filename = filedialog.askopenfilename(parent=self.modal,filetypes=filetypes)
+        self.dir_audio = filename
+
+    #others
+
     def delMulipleView(self): #aparecera un check para seleccionar los que quieres
         print("selecion multiple, esto aparecera en el self.check_drop_tarjetas")
         pass
@@ -123,6 +202,14 @@ class AlarmaModelo ():
         pass
 
     #funciones para guardar
+    def getData(self):
+        pass
+
+    def setData(self):
+        pass
+
+    def interativeData(self):
+        pass
 
     #funcion de modificacion de datos
 
