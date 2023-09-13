@@ -1,6 +1,7 @@
 #SEDV(SAVE - EDIT - ELIMINAR - VIEW)
 import time
 import os
+import json
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from reloj.generador_key import KeyDicc
@@ -29,7 +30,7 @@ class AlarmaModelo (KeyDicc):
         n_childrenw = 0 #numero de hijos del frame
 
         for n, target in enumerate(self.dic_alarm):
-            key = target['key-dic'][0]
+            key = target['key_dicc']
             dic_info = target[key]
 
             if dic_info['delete_info']:
@@ -66,7 +67,7 @@ class AlarmaModelo (KeyDicc):
 
             )
 
-            btn.grid(sticky='w')
+            btn.grid(column=0, row=1,sticky='w')
 
             btn_del = ttk.Button(
                 target_alarm,
@@ -74,23 +75,23 @@ class AlarmaModelo (KeyDicc):
                 command= lambda index = key : self.delTargetView(index=index)
             )
 
-            btn_del.grid(sticky="w")
+            btn_del.grid(column=0,row=0,sticky="w")
 
             btn_edit = ttk.Button(
                 target_alarm,
-                text="Elimnar",
+                text="Editar",
                 command= lambda index = key : self.viewEditTarget(index=index)
             )
 
-            btn_edit.grid(sticky="w")
+            btn_edit.grid(column=1,row=0,sticky="w")
 
-            btn_multiple = ttk.Checkbutton(
-                target_alarm,
-                variable=check_eliminacion,
-                state=tk.DISABLED
-            )
+            # btn_multiple = ttk.Checkbutton(
+            #     target_alarm,
+            #     variable=check_eliminacion,
+            #     state=tk.DISABLED
+            # )
 
-            btn_multiple.grid()
+            # btn_multiple.grid(column=2,row=0,sticky="w")
 
             #appends
 
@@ -99,9 +100,9 @@ class AlarmaModelo (KeyDicc):
             self.listado_tarjetas[key] = target_alarm #targetas en arranque
 
 
-        ttk.Button(self.frame,text=self.app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0, row=0) #agregar nueva alarma
-        ttk.Button(self.frame,text=self.app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1,row=0) #para hacer eliminacion multiple
-        ttk.Button(self.frame,text=self.app['btn-remove']['btn-all'], command=self.selAll,state=tk.DISABLED).grid(column=2,row=0)
+        ttk.Button(self.frame,text=self.app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0, row=1) #agregar nueva alarma
+        ttk.Button(self.frame,text=self.app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1,row=1) #para hacer eliminacion multiple
+        ttk.Button(self.frame,text=self.app['btn-remove']['btn-all'], command=self.selAll,state=tk.DISABLED).grid(column=2,row=1)
 
     #funciones en loop de view
     def editCheckTarget(self, index = str): #editar en loop
@@ -125,7 +126,7 @@ class AlarmaModelo (KeyDicc):
         self.dir_audio = os.path.join(self.route['sound-default'])
         self.confirm_var = tk.BooleanVar()
         #self.dias_semana = None
-        self.status_info = False
+        self.status_info = True
         self.delete_info = False
 
         #modal
@@ -145,17 +146,17 @@ class AlarmaModelo (KeyDicc):
         frame_5.grid(row=4,column=0)
 
         hour_info = ttk.Combobox(frame_1,values=self.hours, textvariable=self.hour_info)
-        hour_info.current(time.strftime("%H"))
+        hour_info.current(int(time.strftime("%H")))
         hour_info.grid(column=0, row=0)
 
         minute_info = ttk.Combobox(frame_1,values=self.minutes,textvariable=self.minute_info)
-        minute_info.current(time.strftime("%H"))
+        minute_info.current(int(time.strftime("%M")))
         minute_info.grid(column=1, row=0)
 
         ttk.Label(frame_2,text="Nombre Alarma").grid(column=1,row=1)
         ttk.Entry(frame_2,textvariable=self.name_info).grid(column=1,row=1)
 
-        ttk.Checkbutton(frame_3,text="Repeticion", variable=self.confirm_var,command=self.interactiveCheckDias).grid(row=0, column=0)
+        ttk.Checkbutton(frame_3,text="Repeticion", variable=self.confirm_var ,command=self.interactiveCheckDias).grid(row=0, column=0)
         #checkbox de dias de la semana
         for indice,dia in enumerate(self.dias):
             var = tk.BooleanVar()
@@ -220,25 +221,28 @@ class AlarmaModelo (KeyDicc):
 
     #funciones para guardar
     def getData(self):
+
         return {
-            "name_info":self.name_info if len(self.name_info) > 0 else "Alama",
-            "hour_info":self.hour_info,
-            "minute_info":self.minute_info,
-            "time_info":f"{self.hour_info} : {self.minute_info}", 
-            "intervalo_info": self.intervalo_info,
+            "name_info":self.name_info.get() if len(self.name_info.get()) > 0 else "Alama",
+            "hour_info":self.hour_info.get(),
+            "minute_info":self.minute_info.get(),
+            "time_info":f"{self.hour_info.get()} : {self.minute_info.get()}", 
+            "intervalo_info": self.intervalo_info.get(),
             "dir_audio":self.dir_audio,
-            "dias_info": [{dia:var.get()} for dia, var in zip(self.dias,self.check_dias)] #generar un fila objecto
+            "dias_info": [{dia:var.get()} for dia, var in zip(self.dias,self.check_dias)], #generar un fila objecto
+            "status_info" :self.status_info,
+            "delete_info": self.delete_info
         }
 
     def setData(self):
-        self.name_info.set()
-        self.hour_info.set()
-        self.minute_info.set()
+        self.name_info.set("")
+        self.hour_info.set(int(time.strftime("%H")))
+        self.minute_info.set(int(time.strftime("%M")))
         self.intervalo_info.set("5")
         self.dir_audio = os.path.join(self.route['sound-default'])
-        self.confirm_var = False
         #uncheck all dias
         [var.set(False) for var in self.check_dias]
+        self.confirm_var = False
 
 
     def interativeData(self):
@@ -247,5 +251,11 @@ class AlarmaModelo (KeyDicc):
     #funcion de modificacion de datos
 
     def upData(self): #llamarlo cuando se quiera SED
-        pass
+        ruta = os.path.join(self.route['historial-alarma'])
+        
+        with open (ruta,"w") as file:
+            json.dump(self.dic_alarm, file, indent=2)
+        
+
+        
 

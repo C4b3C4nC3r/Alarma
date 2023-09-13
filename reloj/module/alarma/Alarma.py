@@ -17,7 +17,17 @@ class Alarma(AlarmaAbc, AlarmaModelo):
         self.view(frame=frame, dic_alarm=dic_alarm,app=self.app, route=self.route,message=self.messages)
 
     def find(self):
-        return []
+        dicc = None
+        ruta = self.route['historial-alarma']
+        try:
+            with open (ruta,"r") as file:
+                dicc = json.load(file)
+        except FileNotFoundError:
+            with open (ruta,"w") as file:
+                json.dump([], file, indent=2)
+                dicc = []
+        
+        return dicc
     
     def notifAlarm(self, index=str):
         pass
