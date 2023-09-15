@@ -12,6 +12,7 @@ class AlarmaModelo (KeyDicc):
         self.check_actividad_tarjetas = {} #guardar el estado de cada tarjeta con un var check
         self.check_drop_tarjetas = {} #guardar el listado de tarjetas a eliminar #eliminacion multiple
         self.listado_tarjetas = {} #guardar el listado de tarjetas que fueron mostradas
+        self.listado_check_del_tarjetas = {} #todos los check para del, de cada uno de las tarjetas
         self.check_dias = [] #Guardar los valors de losdias
         self.dias = ["Lunes","Martes", "Miercoles","Jueves","Viernes","Sabado","Domingo"]
         self.intervalos_minutes = [5,10,15,30,60]
@@ -20,7 +21,7 @@ class AlarmaModelo (KeyDicc):
 
     def view(self, frame = ttk.Frame, dic_alarm = list, app = None, route = None, message = None):
         
-        self.frame = frame #almacenar el frame contenido
+        self.frame = frame #almacenar el frame contenido (padre)
         self.dic_alarm = dic_alarm #almacena todas las trajetas
         self.app = app
         self.message = message
@@ -28,6 +29,9 @@ class AlarmaModelo (KeyDicc):
 
         row_frame = 0 #numero de fila en frame
         n_childrenw = 0 #numero de hijos del frame
+
+        frame_tarjetas = ttk.Frame(self.frame)
+        frame_tarjetas.grid(row=1,column=0)
 
         for n, target in enumerate(self.dic_alarm):
             key = target['key_dicc']
@@ -39,14 +43,11 @@ class AlarmaModelo (KeyDicc):
             #target
 
             target_alarm = ttk.Label(
-                self.frame,
-                borderwidth=2,
-                relief="solid",
-                padding=10
+                frame_tarjetas
             )
 
             #segmentacion u organizacion [[0,1],[0,1]]
-            if isinstance(self.frame.winfo_children()[n],ttk.Label):
+            if isinstance(frame_tarjetas.winfo_children()[n],ttk.Label):
                 #posicionar
                 target_alarm.grid(row=row_frame,column=n_childrenw,sticky="ew", padx=10,pady=5)
 
@@ -85,24 +86,30 @@ class AlarmaModelo (KeyDicc):
 
             btn_edit.grid(column=1,row=0,sticky="w")
 
-            # btn_multiple = ttk.Checkbutton(
-            #     target_alarm,
-            #     variable=check_eliminacion,
-            #     state=tk.DISABLED
-            # )
+            btn_multiple = ttk.Checkbutton(
+                 target_alarm,
+                 variable=check_eliminacion,
+                 state=tk.DISABLED,
+                 command=lambda state = tk.ACTIVE: self.allBtn.config(state=state)
+            )
 
-            # btn_multiple.grid(column=2,row=0,sticky="w")
+            btn_multiple.grid(column=2,row=0,sticky="w")
 
             #appends
 
             self.check_actividad_tarjetas[key] = check_actividad #variables
             self.check_drop_tarjetas[key] = check_eliminacion #variables
             self.listado_tarjetas[key] = target_alarm #targetas en arranque
+            self.listado_check_del_tarjetas[key] = btn_multiple #check de del
+            
 
-
-        ttk.Button(self.frame,text=self.app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0, row=1) #agregar nueva alarma
-        ttk.Button(self.frame,text=self.app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1,row=1) #para hacer eliminacion multiple
-        ttk.Button(self.frame,text=self.app['btn-remove']['btn-all'], command=self.selAll,state=tk.DISABLED).grid(column=2,row=1)
+        #btns
+        frame_btn = ttk.Frame(self.frame)
+        frame_btn.grid(row=2,column=0)
+        ttk.Button(frame_btn,text=self.app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0, row=1) #agregar nueva alarma
+        ttk.Button(frame_btn,text=self.app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1,row=1) #para hacer eliminacion multiple
+        self.allBtn = ttk.Button(frame_btn,text=self.app['btn-all']['btn-all'], command=self.selAll,state=tk.DISABLED)
+        self.allBtn.grid(column=2,row=1)
 
     #funciones en loop de view
     def editCheckTarget(self, index = str): #editar en loop
@@ -195,13 +202,53 @@ class AlarmaModelo (KeyDicc):
 
     #others
 
-    def delMulipleView(self): #aparecera un check para seleccionar los que quieres
+    def delMulipleView(self, status = True): #aparecera un check para seleccionar los que quieres
         print("selecion multiple, esto aparecera en el self.check_drop_tarjetas")
-        pass
+        checks = self.listado_check_del_tarjetas
+        checks_target = self.check_drop_tarjetas
+        [checks_target[check].set(False) for check in checks_target]
+        
+        if status:
+            #acceder al dicc
+            [checks[check].config(state = tk.ACTIVE) for check in checks]
+        else:
+            [checks[check].config(state = tk.DISABLED) for check in checks]
+    
 
-    def selAll(self): #selecciona todos los check  o sea el self. check_frop_tajetas cambian a true
+            self.selAll(status=False)
+        
+
+    def selAll(self,status = True): #selecciona todos los check  o sea el self. check_frop_tajetas cambian a true
         print("seleccionar todo")
-        pass
+        checks = self.check_drop_tarjetas
+        #acceder al dicc
+        [checks[check].set(True) for check in checks]
+
+        #frame_1 = self.frame.winfo_children()[0] #tarjetas
+        frame_2 = self.frame.winfo_children()[1] #btn
+
+        if status:
+            ttk.Button(
+                frame_2,
+                text= self.app['btn-remove']['btn-all'],
+                command= lambda : print("elimnado")
+            ).grid(column=3,row=1) #mensaje de advertencia para proceder a su elimunacion
+
+
+            ttk.Button(
+                frame_2,
+                text="Cancelar",
+                command= lambda state = tk.DISABLED : (self.allBtn.config(state=state),self.delMulipleView(status=False))).grid(column=4,row=1)
+
+        else:
+
+            x = len(frame_2.winfo_children()) - 1            
+
+            frame_2.winfo_children()[x].destroy() #cancelar
+            frame_2.winfo_children()[x-1].destroy() #remover
+
+
+            pass    
     
     def save(self):
         dicc_info = {}

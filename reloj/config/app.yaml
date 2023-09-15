@@ -43,6 +43,13 @@ app:
     btn-crono: Agregar Cronometro
     btn-reloj: Agregar Reloj
 
+  btn-all:
+    btn-alarma: Seleccionar Alarma
+    btn-temporizador: Seleccionar Temporizador
+    btn-crono: Seleccionar Cronometro
+    btn-reloj: Seleccionar Reloj
+    btn-all: Seleccionar Todo
+
   btn-remove:
     btn-alarma: Remover Alarma
     btn-temporizador: Remover Temporizador
