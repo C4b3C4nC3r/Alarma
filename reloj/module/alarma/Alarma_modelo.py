@@ -231,7 +231,7 @@ class AlarmaModelo (KeyDicc):
             ttk.Button(
                 frame_2,
                 text= self.app['btn-remove']['btn-all'],
-                command= lambda : print("elimnado")
+                command= self.delete
             ).grid(column=3,row=1) #mensaje de advertencia para proceder a su elimunacion
 
 
@@ -240,16 +240,27 @@ class AlarmaModelo (KeyDicc):
                 text="Cancelar",
                 command= lambda state = tk.DISABLED : (self.allBtn.config(state=state),self.delMulipleView(status=False))).grid(column=4,row=1)
 
+
         else:
 
             x = len(frame_2.winfo_children()) - 1            
 
             frame_2.winfo_children()[x].destroy() #cancelar
             frame_2.winfo_children()[x-1].destroy() #remover
+    def delete(self):
+        x = 0
+        checks_target = self.check_drop_tarjetas
 
-
-            pass    
-    
+        for check in checks_target:
+            if checks_target[check]:
+                #cambiar el estado de delete_info
+                
+                self.dic_alarm[x][check]['delete_info'] = True
+            x+=1    
+            
+        self.upData()
+        #eliminar visualmente
+        
     def save(self):
         dicc_info = {}
         dicc = self.getData()
