@@ -12,7 +12,7 @@ class ModeloAlarma():
         self.data = data
 
         self.nombre_alarma = data["nombre_alarma"].get()
-        self.tiempo_alarma = data["tiempo_alarma"].get()  
+        self.tiempo_alarma = f"{data['hora_alarma'].get()} : {data['minuto_alarma'].get()}"   
         self.tiempo_posponer = data["tiempo_posponer"].get()
         self.direccion_audio = data["direccion_audio"].get()
         self.repeticion_alarma =  self.interaccion_dias(data["checks"]) # boolvars que se agregan al check repeticion
@@ -29,8 +29,9 @@ class ModeloAlarma():
 
     def clear(self):
         self.data['nombre_alarma'].set('')
-        self.data['tiempo_alarma'].set('')
-        self.data['tiempo_posponer'].set(0)
+        self.data['hora_alarma'].set('')
+        self.data['minuto_alarma'].set('')
+        self.data['tiempo_posponer'].set('')
         self.data['direccion_audio'].set('')
         
         [var.set(False) for var in self.data["checks"]]
