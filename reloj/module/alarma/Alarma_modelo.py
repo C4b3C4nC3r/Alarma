@@ -19,7 +19,7 @@ class AlarmaModelo (KeyDicc):
         self.hours = [h for h in range(0,23)]
         self.minutes = [m for m in range(0,59)]
 
-    def view(self, frame = ttk.Frame, dic_alarm = list, app = None, route = None, message = None):
+    def view(self, frame = ttk.Frame, dic_alarm = [dict], app = None, route = None, message = None):
         
         self.frame = frame #almacenar el frame contenido (padre)
         self.dic_alarm = dic_alarm #almacena todas las trajetas
@@ -107,7 +107,7 @@ class AlarmaModelo (KeyDicc):
         frame_btn = ttk.Frame(self.frame)
         frame_btn.grid(row=2,column=0)
         ttk.Button(frame_btn,text=self.app['btn-add']['btn-alarma'], command=self.viewCreateTarget).grid(column=0, row=1) #agregar nueva alarma
-        ttk.Button(frame_btn,text=self.app['btn-remove']['btn-alarma'],command=self.delMulipleView).grid(column=1,row=1) #para hacer eliminacion multiple
+        ttk.Button(frame_btn,text=self.app['btn-all']['btn-multiple'],command=self.delMulipleView).grid(column=1,row=1) #para hacer eliminacion multiple
         self.allBtn = ttk.Button(frame_btn,text=self.app['btn-all']['btn-all'], command=self.selAll,state=tk.DISABLED)
         self.allBtn.grid(column=2,row=1)
 
@@ -203,7 +203,6 @@ class AlarmaModelo (KeyDicc):
     #others
 
     def delMulipleView(self, status = True): #aparecera un check para seleccionar los que quieres
-        print("selecion multiple, esto aparecera en el self.check_drop_tarjetas")
         checks = self.listado_check_del_tarjetas
         checks_target = self.check_drop_tarjetas
         [checks_target[check].set(False) for check in checks_target]
@@ -211,15 +210,15 @@ class AlarmaModelo (KeyDicc):
         if status:
             #acceder al dicc
             [checks[check].config(state = tk.ACTIVE) for check in checks]
-        else:
-            [checks[check].config(state = tk.DISABLED) for check in checks]
-    
+            self.interactiveBtnAll()
 
+        else:
+
+            [checks[check].config(state = tk.DISABLED) for check in checks]
             self.selAll(status=False)
         
 
     def selAll(self,status = True): #selecciona todos los check  o sea el self. check_frop_tajetas cambian a true
-        print("seleccionar todo")
         checks = self.check_drop_tarjetas
         #acceder al dicc
         [checks[check].set(True) for check in checks]
@@ -228,34 +227,39 @@ class AlarmaModelo (KeyDicc):
         frame_2 = self.frame.winfo_children()[1] #btn
 
         if status:
-            ttk.Button(
-                frame_2,
-                text= self.app['btn-remove']['btn-all'],
-                command= self.delete
-            ).grid(column=3,row=1) #mensaje de advertencia para proceder a su elimunacion
-
-
-            ttk.Button(
-                frame_2,
-                text="Cancelar",
-                command= lambda state = tk.DISABLED : (self.allBtn.config(state=state),self.delMulipleView(status=False))).grid(column=4,row=1)
-
-
+            self.interactiveBtnAll()
         else:
 
             x = len(frame_2.winfo_children()) - 1            
 
             frame_2.winfo_children()[x].destroy() #cancelar
             frame_2.winfo_children()[x-1].destroy() #remover
+
+    def interactiveBtnAll(self):
+        frame_2 = self.frame.winfo_children()[1] #btn
+        ttk.Button(
+            frame_2,
+            text= self.app['btn-remove']['btn-all'],
+            command= self.delete
+        ).grid(column=3,row=1) #mensaje de advertencia para proceder a su elimunacion
+
+
+        ttk.Button(
+            frame_2,
+            text="Cancelar",
+            command= lambda state = tk.DISABLED : (self.allBtn.config(state=state),self.delMulipleView(status=False))).grid(column=4,row=1)
+
+
+
     def delete(self):
         x = 0
         checks_target = self.check_drop_tarjetas
 
         for check in checks_target:
             if checks_target[check]:
-                #cambiar el estado de delete_info
-                
-                self.dic_alarm[x][check]['delete_info'] = True
+                #cambiar el estado de delete_info                
+                self.dic_alarm[x][check]['delete_info'] = True #ignore this
+
             x+=1    
             
         self.upData()
@@ -269,7 +273,7 @@ class AlarmaModelo (KeyDicc):
         dicc_info["key_dicc"] = key
         dicc_info[key] = dicc
 
-        self.dic_alarm.append(dicc_info)
+        #self.dic_alarm.append(dicc_info)
 
         self.setData()
         self.upData()

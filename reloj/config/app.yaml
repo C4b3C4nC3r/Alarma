@@ -49,6 +49,7 @@ app:
     btn-crono: Seleccionar Cronometro
     btn-reloj: Seleccionar Reloj
     btn-all: Seleccionar Todo
+    btn-multiple: Seleccion Multiple
 
   btn-remove:
     btn-alarma: Remover Alarma
