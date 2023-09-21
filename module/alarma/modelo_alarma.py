@@ -5,20 +5,33 @@
 #Estatus_Alarma -> (bool) default: True
 #Eliminado_Alarma -> (bool) default: False
 
-from module.alarma.alarma_get import AlarmsGet
-from module.alarma.alarma_set import AlarmsSet
-
-
-class ModeloAlarma(AlarmsGet,AlarmsSet):
+class ModeloAlarma():
     
     def __init__(self, data={}):
         
         self.data = data
-    
-    def confirmacion(self): #activar los gets
-        pass
 
-    def descarte(self): #activar los sets
-        pass
+        self.nombre_alarma = data["nombre_alarma"].get()
+        self.tiempo_alarma = data["tiempo_alarma"].get()  
+        self.tiempo_posponer = data["tiempo_posponer"].get()
+        self.direccion_audio = data["direccion_audio"].get()
+        self.repeticion_alarma =  self.interaccion_dias(data["checks"]) # boolvars que se agregan al check repeticion
+        self.estatus_alarma = True    
+        self.eliminado_alarma = False    
+
+        self.clear()
+
+    def interaccion_dias(checks = []) -> list : #
+        dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
+
+        return [{dia:var.get() for dia, var in zip(dias, checks)}]
     
-    
+
+    def clear(self):
+        self.data['nombre_alarma'].set('')
+        self.data['tiempo_alarma'].set('')
+        self.data['tiempo_posponer'].set(0)
+        self.data['direccion_audio'].set('')
+        
+        [var.set(False) for var in self.data["checks"]]
+        

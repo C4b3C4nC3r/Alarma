@@ -6,19 +6,8 @@ Descripción: Este programa ejecuta la aplicación de reloj, la cual permite la 
 para el usario.
 """
 
-import tkinter as tk
-from PIL import Image, ImageTk
+from module.gestor import GestorModulos
 
-# Crear una ventana tkinter
-ventana = tk.Tk()
-ventana.title("Ejemplo de Icono en lugar de Texto")
-
-# Cargar una imagen como un icono
-icono = Image.open("data/img/oclock_standar.png")  # Reemplaza "icono.png" con la ruta de tu propia imagen
-icono = ImageTk.PhotoImage(icono)
-
-# Crear un botón con el icono
-boton = tk.Button(ventana, image=icono)
-boton.pack()
-
-ventana.mainloop()
+if __name__ == "__main__":
+    app = GestorModulos()
+    app.mainloop()
