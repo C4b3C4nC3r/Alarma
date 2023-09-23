@@ -14,17 +14,19 @@ class ModeloAlarma():
     def __init__(self, data={}):
         
         self.data = data
-        self.key = KeyDicc()
+        self.key = KeyDicc()  
 
-        self.nombre_alarma = data["nombre_alarma"].get()
-        self.tiempo_alarma = f"{data['hora_alarma'].get()} : {data['minuto_alarma'].get()}"   
-        self.tiempo_posponer = data["tiempo_posponer"].get()
-        self.direccion_audio = data["direccion_audio"].get()
-        self.repeticion_alarma =  self.interaccion_dias(data["checks"]) # boolvars que se agregan al check repeticion
+
+    def elements(self):
+
+        self.nombre_alarma = self.data["nombre_alarma"].get()
+        self.tiempo_alarma = f"{self.data['hora_alarma'].get()} : {self.data['minuto_alarma'].get()}"   
+        self.tiempo_posponer = self.data["tiempo_posponer"].get()
+        self.direccion_audio = self.data["direccion_audio"].get()
+        self.repeticion_alarma =  self.interaccion_dias(self.data["checks"]) # boolvars que se agregan al check repeticion
         self.estatus_alarma = True    
-        self.eliminado_alarma = False    
+        self.eliminado_alarma = False  
 
-        self.clear()
 
     def interaccion_dias(self,checks = []) -> list : #
         dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
@@ -49,11 +51,13 @@ class ModeloAlarma():
 
         #print(diccionario)
         self.upHistorial(diccionario, old)
-
-    def upHistorial(self,data = {}, old = list): 
+        self.clear()
+        
+    def upHistorial(self,nuevo = True,data = {}, old = list): 
         dir = os.path.join("data/historial","historial_alarms.json")
 
-        old.append(data)
+        if nuevo:
+            old.append(data)
 
         with open(dir, "w") as archivo:
             json.dump(old, archivo, indent=4)

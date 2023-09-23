@@ -39,15 +39,32 @@ class VistaAlarma():
                 json.dump([], file, indent=2)
 
     def vistaPrincipal(self): #tarjetas
+        
         self.busquedaHistorial()
         historial = self.historial
+        
         if not historial:#caso vacio
             self.default()
+        
         else:
-            for diccionario in historial:
+            self.clear()
+            row = 0
+            col = 0
+
+            for index, diccionario in enumerate(historial):
                 key = list(diccionario.keys())[0]
-                self.tarjetas(key=key)
+
+                if diccionario[key]["eliminado_alarma"]:
+                    continue
+
+                if col == 3:
+                    row+=1
+                    col= 0
+
+                self.tarjetas(row = row,col=col,key=key,index = index, diccionario = diccionario[key])
                 
+                col+=1
+
 
 
     def vistaCrearAlarmas(self): #modal para la creacion
@@ -166,19 +183,45 @@ class VistaAlarma():
                 frame.winfo_children()[3].destroy() #mayor a menor
                 frame.winfo_children()[2].destroy()
                 
-    def tarjetas(self, key = str):
-        self.clear()
+    def tarjetas(self,row = 0, col = 0, index = int ,key = str, diccionario = {}):
         print(f"Tarjetas {key}")
-        
-        tarjeta_frame = ttk.Frame(self.frame)
-        tarjeta_frame.grid(padx=10, pady=10)
+
+        tarjeta_frame = ttk.Frame(self.frame, borderwidth=2, relief="solid",width=50, height=80)
+        tarjeta_frame.grid(row=row,column=col, padx=10, pady=10)
+
+        #contenido
+        tk.Label(tarjeta_frame,text=diccionario["nombre_alarma"]).grid(row=0,column=0,sticky="nw")
+
+        tk.Label(tarjeta_frame,text=diccionario["tiempo_alarma"]).grid(row=1,column=0, pady=(10,0))
+
+        btn_frame = ttk.Frame(tarjeta_frame)
+        btn_frame.grid(row=4,column=0)
+
+
+        tk.Button(btn_frame,text="Editar", command=lambda key = key , index = index: self.edit(key = key, index = index)).grid(row=2,column=0,pady=(10,0))
+        tk.Button(btn_frame,text="Eliminar", command=lambda key = key , index = index: self.delete(key = key, index=index)).grid(row=2,column=1,pady=(10,0))
+
 
         self.tarjetas_diccionario[key] = tarjeta_frame # tendra todo de tarjeta
 
     def save (self):
-        self.alarma = ModeloAlarma(self.data)    
+        self.alarma = ModeloAlarma(self.data)
+        self.alarma.elements()
         self.alarma.save(self.historial)    
         self.confirmacion.set(False) #check se pone false
+        self.vistaPrincipal()
+
+    def edit (self,key = str,index = int):
+        
+        pass
+        
+    def delete (self,key = str, index = int):
+
+        #print(self.historial[index][key])
+        self.alarma = ModeloAlarma(self.data)
+        self.historial[index][key]["eliminado_alarma"] = True
+        self.alarma.upHistorial(nuevo=False,old=self.historial)
+        self.vistaPrincipal()
 
     def clear(self):
         for widget in self.frame.winfo_children():
