@@ -4,12 +4,17 @@
 #Repeticion_Alarma -> [{lun : true, ...}] default : false in * {} in []
 #Estatus_Alarma -> (bool) default: True
 #Eliminado_Alarma -> (bool) default: False
+import os
+import json
+import time
+from module.generador_key import KeyDicc
 
 class ModeloAlarma():
     
     def __init__(self, data={}):
         
         self.data = data
+        self.key = KeyDicc()
 
         self.nombre_alarma = data["nombre_alarma"].get()
         self.tiempo_alarma = f"{data['hora_alarma'].get()} : {data['minuto_alarma'].get()}"   
@@ -21,18 +26,45 @@ class ModeloAlarma():
 
         self.clear()
 
-    def interaccion_dias(checks = []) -> list : #
+    def interaccion_dias(self,checks = []) -> list : #
         dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
 
         return [{dia:var.get() for dia, var in zip(dias, checks)}]
     
+    def save (self, old = []):
+        data = {}
+        diccionario = {}
+        key = self.key.getKey()
+
+        #anadir los datos
+        data["nombre_alarma"] = self.nombre_alarma
+        data["tiempo_alarma"] = self.tiempo_alarma
+        data["tiempo_posponer"] = self.tiempo_posponer
+        data["direccion_audio"] = self.direccion_audio
+        data["repeticion_alarma"] = self.repeticion_alarma
+        data["estatus_alarma"] = self.estatus_alarma
+        data["eliminado_alarma"] = self.eliminado_alarma
+
+        diccionario[key] = data
+
+        #print(diccionario)
+        self.upHistorial(diccionario, old)
+
+    def upHistorial(self,data = {}, old = list): 
+        dir = os.path.join("data/historial","historial_alarms.json")
+
+        old.append(data)
+
+        with open(dir, "w") as archivo:
+            json.dump(old, archivo, indent=4)
 
     def clear(self):
         self.data['nombre_alarma'].set('')
-        self.data['hora_alarma'].set('')
-        self.data['minuto_alarma'].set('')
-        self.data['tiempo_posponer'].set('')
-        self.data['direccion_audio'].set('')
-        
+        self.data['hora_alarma'].set(time.strftime("%H"))
+        self.data['minuto_alarma'].set(time.strftime("%M"))
+        self.data['tiempo_posponer'].set(0)
+        self.data["direccion_audio"].set('data/sounds/herta singing kururing.mp3')
+
         [var.set(False) for var in self.data["checks"]]
         
+    

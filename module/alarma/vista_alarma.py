@@ -3,6 +3,7 @@ import json
 import time
 import tkinter as tk
 from tkinter import ttk,filedialog
+from module.alarma.modelo_alarma import ModeloAlarma
 
 class VistaAlarma():
     def __init__(self, frame = ttk.Frame):
@@ -13,8 +14,9 @@ class VistaAlarma():
         self.dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
         self.confirmacion = tk.BooleanVar() #este es que hace que se genere los checks
         self.data = self.generacionVar()
-        self.historial = None
+        self.historial = []
         self.frame = frame
+        self.tarjetas_diccionario = {}
 
     def generacionVar(self)->dict:
         data = {}
@@ -42,8 +44,10 @@ class VistaAlarma():
         if not historial:#caso vacio
             self.default()
         else:
-            for key in historial:
-                self.tarjetas()
+            for diccionario in historial:
+                key = list(diccionario.keys())[0]
+                self.tarjetas(key=key)
+                
 
 
     def vistaCrearAlarmas(self): #modal para la creacion
@@ -67,19 +71,19 @@ class VistaAlarma():
 
         #contenido de la creacion
         frame_top = ttk.Frame(self.modal)
-        frame_top.grid(column=0,row=1)
+        frame_top.grid(column=0,row=1, pady=10, padx=50)
         
         frame_midd = ttk.Frame(self.modal)
-        frame_midd.grid(column=0,row=2)
+        frame_midd.grid(column=0,row=2, pady=10, padx=50)
         
         frame_end = ttk.Frame(self.modal)
-        frame_end.grid(column=0,row=3)
+        frame_end.grid(column=0,row=3, pady=10, padx=50)
 
         frame_check = ttk.Frame(self.modal)
-        frame_check.grid(column=0,row=4)
+        frame_check.grid(column=0,row=4, pady=10, padx=50)
 
         frame_btn = ttk.Frame(self.modal)
-        frame_btn.grid(column=0,row=5)
+        frame_btn.grid(column=0,row=5, pady=10, padx=50)
 
         # cmbbox h y m (self.data["hora_alarma"], self.data["minuto_alarma"]) #top
         # entry name (self.data["nombre_alarma"]) #midd
@@ -99,6 +103,7 @@ class VistaAlarma():
         ttk.Entry(frame_midd, textvariable=self.data['nombre_alarma']).grid(column=1,row=0)
 
         ttk.Button(frame_end, text="Tono", command=self.seleccionarAudio).grid(row=0, column=0)
+
         ttk.Label(frame_end,text="Posponer").grid(row=0, column=1)
         cmb_posponer = ttk.Combobox(frame_end,textvariable=self.data["tiempo_posponer"], values=[5,10,15,20,25,30])
         cmb_posponer.current(0)
@@ -118,10 +123,15 @@ class VistaAlarma():
             ttk.Checkbutton(frame_check, text=dia, variable=var, 
                             command=lambda : self.confirmacion.set(True) if any([var.get() for var in self.checks]) else self.confirmacion.set(False)
                             ).grid(column=indice, row=2)
+            
             self.checks.append(var)
+        
         #btns
-        ttk.Button(frame_btn,text="Guardar", command= lambda : print(self.data)).grid(row=3,column=0)
+        ttk.Button(frame_btn,text="Guardar", command=self.save).grid(row=3,column=0)
         ttk.Button(frame_btn,text="Cancelar", command= self.modal.destroy).grid(row=3,column=1)
+
+        self.data["direccion_audio"].set('data/sounds/herta singing kururing.mp3')
+        self.data["checks"] = self.checks
 
         self.modal.grab_set() 
 
@@ -134,9 +144,12 @@ class VistaAlarma():
         #limpiar el frame
         self.clear()
         print("Limpieza de frame")
-        #more code
+        
+        ancho_ventana = 800
+        alto_ventana = 600
+        
         frame_label = ttk.Frame(self.frame)
-        frame_label.grid(column=0,row=0)
+        frame_label.grid(column=0,row=0,padx=(ancho_ventana // 4), pady=(alto_ventana // 4))
         frame_btn = ttk.Frame(self.frame)
         frame_btn.grid(column=0,row=1)
         ttk.Label(frame_label, text="Hola no hay alarmas hasta el momento, por favor crea una alarma").grid(row=1,column=0)
@@ -153,9 +166,19 @@ class VistaAlarma():
                 frame.winfo_children()[3].destroy() #mayor a menor
                 frame.winfo_children()[2].destroy()
                 
-    def tarjetas(self):
+    def tarjetas(self, key = str):
         self.clear()
-        print("Tarjetas: ")
+        print(f"Tarjetas {key}")
+        
+        tarjeta_frame = ttk.Frame(self.frame)
+        tarjeta_frame.grid(padx=10, pady=10)
+
+        self.tarjetas_diccionario[key] = tarjeta_frame # tendra todo de tarjeta
+
+    def save (self):
+        self.alarma = ModeloAlarma(self.data)    
+        self.alarma.save(self.historial)    
+        self.confirmacion.set(False) #check se pone false
 
     def clear(self):
         for widget in self.frame.winfo_children():
