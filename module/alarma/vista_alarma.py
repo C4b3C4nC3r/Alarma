@@ -42,32 +42,32 @@ class VistaAlarma():
         
         self.busquedaHistorial()
         historial = self.historial
-        
-        if not historial:#caso vacio
-            self.default()
-        
-        else:
-            self.clear()
-            row = 0
-            col = 0
 
-            for index, diccionario in enumerate(historial):
-                key = list(diccionario.keys())[0]
+        self.clear()
 
-                if diccionario[key]["eliminado_alarma"]:
-                    continue
+        row = 0
+        col = 0
 
-                if col == 3:
-                    row+=1
-                    col= 0
+        for index, diccionario in enumerate(historial):
+            key = list(diccionario.keys())[0]
 
-                self.tarjetas(row = row,col=col,key=key,index = index, diccionario = diccionario[key])
+            if diccionario[key]["eliminado_alarma"]:
+                continue
+
+            if col == 3:
+                row+=1
+                col= 0
+
+            self.tarjetas(row = row,col=col,key=key,index = index, diccionario = diccionario[key])
                 
-                col+=1
+            col+=1
 
+        #comprobar
+        if not self.tarjetas_diccionario:
 
+            self.default()
 
-    def vistaCrearAlarmas(self): #modal para la creacion
+    def vistaCrearAlarmas(self, nuevo = True): #modal para la creacion
         self.modal = tk.Toplevel(self.frame)
 
         self.modal.title("Nueva Alarma")
@@ -109,11 +109,13 @@ class VistaAlarma():
         # btn guardar y  btn cancelar #btn
 
         cmb_h = ttk.Combobox(frame_top,values=[h for h in range(0,24)], textvariable=self.data['hora_alarma'])
-        cmb_h.current(int(time.strftime("%H")))
+        if nuevo:
+            cmb_h.current(int(time.strftime("%H"))) 
         cmb_h.grid(column=0,row=0)
 
         cmb_m = ttk.Combobox(frame_top,values=[m for m in range(0,60)], textvariable=self.data['minuto_alarma'])
-        cmb_m.current(int(time.strftime("%M")))
+        if nuevo:
+            cmb_m.current(int(time.strftime("%M")))
         cmb_m.grid(column=1,row=0)
 
         ttk.Label(frame_midd, text="Nombre Alarma").grid(column=0,row=0)
@@ -144,7 +146,7 @@ class VistaAlarma():
             self.checks.append(var)
         
         #btns
-        ttk.Button(frame_btn,text="Guardar", command=self.save).grid(row=3,column=0)
+        ttk.Button(frame_btn,text="Guardar", command=self.save if nuevo else self.update).grid(row=3,column=0)
         ttk.Button(frame_btn,text="Cancelar", command= self.modal.destroy).grid(row=3,column=1)
 
         self.data["direccion_audio"].set('data/sounds/herta singing kururing.mp3')
@@ -184,7 +186,6 @@ class VistaAlarma():
                 frame.winfo_children()[2].destroy()
                 
     def tarjetas(self,row = 0, col = 0, index = int ,key = str, diccionario = {}):
-        print(f"Tarjetas {key}")
 
         tarjeta_frame = ttk.Frame(self.frame, borderwidth=2, relief="solid",width=50, height=80)
         tarjeta_frame.grid(row=row,column=col, padx=10, pady=10)
@@ -206,25 +207,55 @@ class VistaAlarma():
 
     def save (self):
         self.alarma = ModeloAlarma(self.data)
-        self.alarma.elements()
-        self.alarma.save(self.historial)    
+        self.alarma.elements() #recolectar elementos del modal
+        alarma = self.alarma.save() #guardar en un diccionario
+        self.alarma.upHistorial(data=alarma,old=self.historial) #subir al historial
         self.confirmacion.set(False) #check se pone false
         self.vistaPrincipal()
 
     def edit (self,key = str,index = int):
+        #toca hacer un vista para este es lo mismo pero no s epuede reultizarse
         
-        pass
+        data = self.historial[index][key]
+
+        hora, minuto = data["tiempo_alarma"].split(" : ")
+
+        self.data["nombre_alarma"].set(data["nombre_alarma"])
+        self.data["hora_alarma"].set(int(hora))
+        self.data["minuto_alarma"].set(int(minuto))
+        self.data["direccion_audio"].set(data["direccion_audio"])
+        self.data["tiempo_posponer"].set(data["tiempo_posponer"])
+
+        self.vistaCrearAlarmas(nuevo=False)
         
+        dias = data["repeticion_alarma"][0] #dias en check
+        
+        for key, check in zip(dias, self.checks):
+            print(check)
+            print(dias[key])
+            check.set(dias[key])
+
+        self.confirmacion.set(True) if any([var.get() for var in self.checks]) else self.confirmacion.set(False)
+
+        self.modal.title(f"Actualizar {data['nombre_alarma']}")
+
+    def update(self):
+        print("Lol")
+        pass           
+
     def delete (self,key = str, index = int):
 
-        #print(self.historial[index][key])
         self.alarma = ModeloAlarma(self.data)
         self.historial[index][key]["eliminado_alarma"] = True
         self.alarma.upHistorial(nuevo=False,old=self.historial)
+        del self.tarjetas_diccionario[key]
         self.vistaPrincipal()
-
+        
     def clear(self):
         for widget in self.frame.winfo_children():
+            if widget.winfo_class() == "Toplevel":
+                continue
+            
             widget.grid_forget()
 
 

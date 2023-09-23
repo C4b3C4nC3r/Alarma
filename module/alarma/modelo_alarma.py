@@ -16,7 +16,6 @@ class ModeloAlarma():
         self.data = data
         self.key = KeyDicc()  
 
-
     def elements(self):
 
         self.nombre_alarma = self.data["nombre_alarma"].get()
@@ -27,13 +26,13 @@ class ModeloAlarma():
         self.estatus_alarma = True    
         self.eliminado_alarma = False  
 
-
     def interaccion_dias(self,checks = []) -> list : #
         dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
 
         return [{dia:var.get() for dia, var in zip(dias, checks)}]
     
-    def save (self, old = []):
+    def save (self)-> dict: 
+        
         data = {}
         diccionario = {}
         key = self.key.getKey()
@@ -46,14 +45,13 @@ class ModeloAlarma():
         data["repeticion_alarma"] = self.repeticion_alarma
         data["estatus_alarma"] = self.estatus_alarma
         data["eliminado_alarma"] = self.eliminado_alarma
-
         diccionario[key] = data
-
-        #print(diccionario)
-        self.upHistorial(diccionario, old)
+        
         self.clear()
         
-    def upHistorial(self,nuevo = True,data = {}, old = list): 
+        return diccionario 
+
+    def upHistorial(self,nuevo = True,data = dict, old = list): 
         dir = os.path.join("data/historial","historial_alarms.json")
 
         if nuevo:
@@ -64,9 +62,9 @@ class ModeloAlarma():
 
     def clear(self):
         self.data['nombre_alarma'].set('')
-        self.data['hora_alarma'].set(time.strftime("%H"))
-        self.data['minuto_alarma'].set(time.strftime("%M"))
-        self.data['tiempo_posponer'].set(0)
+        self.data['hora_alarma'].set(int(time.strftime("%H")))
+        self.data['minuto_alarma'].set(int(time.strftime("%M")))
+        self.data['tiempo_posponer'].set(5)
         self.data["direccion_audio"].set('data/sounds/herta singing kururing.mp3')
 
         [var.set(False) for var in self.data["checks"]]
