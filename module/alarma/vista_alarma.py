@@ -6,6 +6,7 @@ from tkinter import ttk,filedialog
 from module.alarma.modelo_alarma import ModeloAlarma
 
 class VistaAlarma():
+
     def __init__(self, frame = ttk.Frame):
         #configuracion ventana
         super().__init__()
@@ -17,6 +18,7 @@ class VistaAlarma():
         self.historial = []
         self.frame = frame
         self.tarjetas_diccionario = {}
+        self.tarjeta_key = []
 
     def generacionVar(self)->dict:
         data = {}
@@ -61,6 +63,12 @@ class VistaAlarma():
             self.tarjetas(row = row,col=col,key=key,index = index, diccionario = diccionario[key])
                 
             col+=1
+
+        frame_btn = ttk.Frame(self.frame)
+        frame_btn.grid(columnspan=2, row=row+1, column=0, pady=10)
+
+        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCrearAlarmas).grid(column=0,row=0) #0
+        ttk.Button(frame_btn,text="Seleccion",command= lambda frame = frame_btn:self.seleccionMultiple(frame)).grid(column=1,row=0) #1
 
         #comprobar
         if not self.tarjetas_diccionario:
@@ -146,7 +154,7 @@ class VistaAlarma():
             self.checks.append(var)
         
         #btns
-        ttk.Button(frame_btn,text="Guardar", command=self.save if nuevo else self.update).grid(row=3,column=0)
+        ttk.Button(frame_btn,text="Guardar" if nuevo else "Actualizar", command=self.save if nuevo else self.update).grid(row=3,column=0)
         ttk.Button(frame_btn,text="Cancelar", command= self.modal.destroy).grid(row=3,column=1)
 
         self.data["direccion_audio"].set('data/sounds/herta singing kururing.mp3')
@@ -173,7 +181,7 @@ class VistaAlarma():
         frame_btn.grid(column=0,row=1)
         ttk.Label(frame_label, text="Hola no hay alarmas hasta el momento, por favor crea una alarma").grid(row=1,column=0)
         ttk.Button(frame_btn,text="Nuevo", command=self.vistaCrearAlarmas).grid(column=0,row=2) #0
-        ttk.Button(frame_btn,text="Seleccion",command= lambda frame = frame_btn:self.seleccionMultiple(frame)).grid(column=1,row=2) #1
+        #ttk.Button(frame_btn,text="Seleccion",command= lambda frame = frame_btn:self.seleccionMultiple(frame)).grid(column=1,row=2) #1
     
     def seleccionMultiple(self, frame, confirm = True):        
         if confirm:
@@ -215,7 +223,9 @@ class VistaAlarma():
 
     def edit (self,key = str,index = int):
         #toca hacer un vista para este es lo mismo pero no s epuede reultizarse
-        
+        self.tarjeta_key.append(key)
+        self.tarjeta_key.append(index)
+
         data = self.historial[index][key]
 
         hora, minuto = data["tiempo_alarma"].split(" : ")
@@ -231,8 +241,6 @@ class VistaAlarma():
         dias = data["repeticion_alarma"][0] #dias en check
         
         for key, check in zip(dias, self.checks):
-            print(check)
-            print(dias[key])
             check.set(dias[key])
 
         self.confirmacion.set(True) if any([var.get() for var in self.checks]) else self.confirmacion.set(False)
@@ -240,9 +248,18 @@ class VistaAlarma():
         self.modal.title(f"Actualizar {data['nombre_alarma']}")
 
     def update(self):
-        print("Lol")
-        pass           
+        self.alarma = ModeloAlarma(self.data)
+        #modificar historial con los nuevos datos
+        self.alarma.elements()
+        dicc = self.alarma.save(nuevo=False)
+        self.historial[self.tarjeta_key[1]][self.tarjeta_key[0]] = dicc
+        self.alarma.upHistorial(nuevo=False,old=self.historial)
+        self.modal.destroy()
+        del self.tarjeta_key[:] #para evitar las acumulaciones d edatos
+        del self.checks[:] #x2
 
+        self.vistaPrincipal()
+        
     def delete (self,key = str, index = int):
 
         self.alarma = ModeloAlarma(self.data)

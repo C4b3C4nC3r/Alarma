@@ -31,7 +31,7 @@ class ModeloAlarma():
 
         return [{dia:var.get() for dia, var in zip(dias, checks)}]
     
-    def save (self)-> dict: 
+    def save (self, nuevo = True)-> dict: 
         
         data = {}
         diccionario = {}
@@ -45,13 +45,15 @@ class ModeloAlarma():
         data["repeticion_alarma"] = self.repeticion_alarma
         data["estatus_alarma"] = self.estatus_alarma
         data["eliminado_alarma"] = self.eliminado_alarma
+
         diccionario[key] = data
         
         self.clear()
         
-        return diccionario 
+        return diccionario if nuevo else data
 
     def upHistorial(self,nuevo = True,data = dict, old = list): 
+        
         dir = os.path.join("data/historial","historial_alarms.json")
 
         if nuevo:
@@ -59,6 +61,7 @@ class ModeloAlarma():
 
         with open(dir, "w") as archivo:
             json.dump(old, archivo, indent=4)
+
 
     def clear(self):
         self.data['nombre_alarma'].set('')
