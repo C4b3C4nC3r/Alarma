@@ -2,7 +2,7 @@ import os
 import json
 import time
 import tkinter as tk
-from tkinter import ttk,filedialog
+from tkinter import ttk,filedialog,messagebox
 from module.alarma.modelo_alarma import ModeloAlarma
 
 class VistaAlarma():
@@ -185,14 +185,22 @@ class VistaAlarma():
     
     def seleccionMultiple(self, frame, confirm = True):        
         if confirm:
-            ttk.Button(frame,text="Remover todo").grid(column=2,row=2) #2
+            
+            #anadimos los checks en cada tarjeta este crearia una lista de variables al igual que chekcs de dias, en este caso
+            #usando self.tarjetas_diccionario
+            
+
+            ttk.Button(frame,text="Remover todo", command= lambda frame = frame :self.allDelete(frame = frame)).grid(column=2,row=0) #2
             ttk.Button(frame,text="Cancelar", 
-                       command= lambda confirm = False, frame = frame : self.seleccionMultiple(frame=frame, confirm=confirm)).grid(column=3,row=2) #3
+                       command= lambda confirm = False, frame = frame : self.seleccionMultiple(frame=frame, confirm=confirm)).grid(column=3,row=0) #3
         else:
             if len(frame.winfo_children()) > 2:
                 frame.winfo_children()[3].destroy() #mayor a menor
                 frame.winfo_children()[2].destroy()
-                
+
+    def alerta(self)->bool:
+        return messagebox.askyesno(title="Alarma",message="Estas seguro de realizar esta accion?")
+        
     def tarjetas(self,row = 0, col = 0, index = int ,key = str, diccionario = {}):
 
         tarjeta_frame = ttk.Frame(self.frame, borderwidth=2, relief="solid",width=50, height=80)
@@ -214,60 +222,75 @@ class VistaAlarma():
         self.tarjetas_diccionario[key] = tarjeta_frame # tendra todo de tarjeta
 
     def save (self):
-        self.alarma = ModeloAlarma(self.data)
-        self.alarma.elements() #recolectar elementos del modal
-        alarma = self.alarma.save() #guardar en un diccionario
-        self.alarma.upHistorial(data=alarma,old=self.historial) #subir al historial
-        self.confirmacion.set(False) #check se pone false
-        self.vistaPrincipal()
+        if self.alerta():
+            self.alarma = ModeloAlarma(self.data)
+            self.alarma.elements() #recolectar elementos del modal
+            alarma = self.alarma.save() #guardar en un diccionario
+            self.alarma.upHistorial(data=alarma,old=self.historial) #subir al historial
+            self.confirmacion.set(False) #check se pone false
+            self.vistaPrincipal()
 
     def edit (self,key = str,index = int):
-        #toca hacer un vista para este es lo mismo pero no s epuede reultizarse
-        self.tarjeta_key.append(key)
-        self.tarjeta_key.append(index)
+        if self.alerta():
 
-        data = self.historial[index][key]
+            #toca hacer un vista para este es lo mismo pero no s epuede reultizarse
+            self.tarjeta_key.append(key)
+            self.tarjeta_key.append(index)
 
-        hora, minuto = data["tiempo_alarma"].split(" : ")
+            data = self.historial[index][key]
 
-        self.data["nombre_alarma"].set(data["nombre_alarma"])
-        self.data["hora_alarma"].set(int(hora))
-        self.data["minuto_alarma"].set(int(minuto))
-        self.data["direccion_audio"].set(data["direccion_audio"])
-        self.data["tiempo_posponer"].set(data["tiempo_posponer"])
+            hora, minuto = data["tiempo_alarma"].split(" : ")
 
-        self.vistaCrearAlarmas(nuevo=False)
-        
-        dias = data["repeticion_alarma"][0] #dias en check
-        
-        for key, check in zip(dias, self.checks):
-            check.set(dias[key])
+            self.data["nombre_alarma"].set(data["nombre_alarma"])
+            self.data["hora_alarma"].set(int(hora))
+            self.data["minuto_alarma"].set(int(minuto))
+            self.data["direccion_audio"].set(data["direccion_audio"])
+            self.data["tiempo_posponer"].set(data["tiempo_posponer"])
 
-        self.confirmacion.set(True) if any([var.get() for var in self.checks]) else self.confirmacion.set(False)
+            self.vistaCrearAlarmas(nuevo=False)
+            
+            dias = data["repeticion_alarma"][0] #dias en check
+            
+            for key, check in zip(dias, self.checks):
+                check.set(dias[key])
 
-        self.modal.title(f"Actualizar {data['nombre_alarma']}")
+            self.confirmacion.set(True) if any([var.get() for var in self.checks]) else self.confirmacion.set(False)
+
+            self.modal.title(f"Actualizar {data['nombre_alarma']}")
 
     def update(self):
-        self.alarma = ModeloAlarma(self.data)
-        #modificar historial con los nuevos datos
-        self.alarma.elements()
-        dicc = self.alarma.save(nuevo=False)
-        self.historial[self.tarjeta_key[1]][self.tarjeta_key[0]] = dicc
-        self.alarma.upHistorial(nuevo=False,old=self.historial)
-        self.modal.destroy()
-        del self.tarjeta_key[:] #para evitar las acumulaciones d edatos
-        del self.checks[:] #x2
+        if self.alerta():
 
-        self.vistaPrincipal()
+            self.alarma = ModeloAlarma(self.data)
+            #modificar historial con los nuevos datos
+            self.alarma.elements()
+            dicc = self.alarma.save(nuevo=False)
+            self.historial[self.tarjeta_key[1]][self.tarjeta_key[0]] = dicc
+            self.alarma.upHistorial(nuevo=False,old=self.historial)
+            self.modal.destroy()
+            del self.tarjeta_key[:] #para evitar las acumulaciones d edatos
+            del self.checks[:] #x2
+
+            self.vistaPrincipal()
         
     def delete (self,key = str, index = int):
+        if self.alerta():
+            self.alarma = ModeloAlarma(self.data)
+            self.historial[index][key]["eliminado_alarma"] = True
+            self.alarma.upHistorial(nuevo=False,old=self.historial)
+            del self.tarjetas_diccionario[key]
+            self.vistaPrincipal()
 
-        self.alarma = ModeloAlarma(self.data)
-        self.historial[index][key]["eliminado_alarma"] = True
-        self.alarma.upHistorial(nuevo=False,old=self.historial)
-        del self.tarjetas_diccionario[key]
-        self.vistaPrincipal()
-        
+    def allDelete(self, frame):
+        if self.alerta():
+            print("Eliminar todo lo seleccionado")
+            #aqui se hace el bucle para detectar si hay o no hay checks true, y cin este bucle se elimina , pero primero confirmamos si existe
+            #TRue en algun check, si el caso no lo es se cancela
+
+            
+
+            self.seleccionMultiple(frame=frame, confirm=False)
+
     def clear(self):
         for widget in self.frame.winfo_children():
             if widget.winfo_class() == "Toplevel":

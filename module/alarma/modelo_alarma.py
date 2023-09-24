@@ -62,7 +62,6 @@ class ModeloAlarma():
         with open(dir, "w") as archivo:
             json.dump(old, archivo, indent=4)
 
-
     def clear(self):
         self.data['nombre_alarma'].set('')
         self.data['hora_alarma'].set(int(time.strftime("%H")))
