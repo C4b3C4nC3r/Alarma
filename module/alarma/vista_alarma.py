@@ -12,13 +12,15 @@ class VistaAlarma():
         super().__init__()
         #vars
         self.checks = [] #esperando a que le agregen los check
+        self.checks_multiples = {}
+        self.checks_status = {}
         self.dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
         self.confirmacion = tk.BooleanVar() #este es que hace que se genere los checks
         self.data = self.generacionVar()
         self.historial = []
         self.frame = frame
         self.tarjetas_diccionario = {}
-        self.tarjeta_key = []
+        self.tarjeta_key = [] #ubicacion key e index de la tarjeta en el historial
 
     def generacionVar(self)->dict:
         data = {}
@@ -160,7 +162,7 @@ class VistaAlarma():
         self.data["direccion_audio"].set('data/sounds/herta singing kururing.mp3')
         self.data["checks"] = self.checks
 
-        self.modal.grab_set() 
+        self.modal.grab_set()
 
     def seleccionarAudio(self):
 
@@ -185,18 +187,31 @@ class VistaAlarma():
     
     def seleccionMultiple(self, frame, confirm = True):        
         if confirm:
-            
-            #anadimos los checks en cada tarjeta este crearia una lista de variables al igual que chekcs de dias, en este caso
+            #anadimos los checks en cada tarjeta este crearia una diccionario de variables al igual que chekcs de dias (pero con dict), en este caso
             #usando self.tarjetas_diccionario
-            
+            for key in self.tarjetas_diccionario:
+                var = tk.BooleanVar()
+                var.set(True)
+                check = ttk.Checkbutton(self.tarjetas_diccionario[key], variable=var)
+                check.grid(row=0, column=1, sticky="ne")  # Posicionar el check en la parte derecha superior
+                self.checks_multiples[key] = [var, check]
 
-            ttk.Button(frame,text="Remover todo", command= lambda frame = frame :self.allDelete(frame = frame)).grid(column=2,row=0) #2
+            ttk.Button(frame,text="Remover todo", command= self.allDelete).grid(column=2,row=0) #2
             ttk.Button(frame,text="Cancelar", 
                        command= lambda confirm = False, frame = frame : self.seleccionMultiple(frame=frame, confirm=confirm)).grid(column=3,row=0) #3
         else:
             if len(frame.winfo_children()) > 2:
                 frame.winfo_children()[3].destroy() #mayor a menor
                 frame.winfo_children()[2].destroy()
+
+            #eliminar de la vista los checks
+            for key in self.checks_multiples:
+                lista = self.checks_multiples[key]
+                #var = lista[0] #var
+                check = lista[1] #check
+                check.destroy()
+
+            self.checks_multiples.clear()
 
     def alerta(self)->bool:
         return messagebox.askyesno(title="Alarma",message="Estas seguro de realizar esta accion?")
@@ -217,6 +232,12 @@ class VistaAlarma():
 
         tk.Button(btn_frame,text="Editar", command=lambda key = key , index = index: self.edit(key = key, index = index)).grid(row=2,column=0,pady=(10,0))
         tk.Button(btn_frame,text="Eliminar", command=lambda key = key , index = index: self.delete(key = key, index=index)).grid(row=2,column=1,pady=(10,0))
+
+        var = tk.BooleanVar()
+        var.set(diccionario["estatus_alarma"])
+        check = ttk.Checkbutton(tarjeta_frame,text="Estado", variable=var, command=lambda key = key, index = index : self.status(key=key, index=index))
+        check.grid(row=0, column=1, sticky="ne")  # Posicionar el check en la parte derecha superior
+        self.checks_status[key] = var
 
 
         self.tarjetas_diccionario[key] = tarjeta_frame # tendra todo de tarjeta
@@ -270,26 +291,43 @@ class VistaAlarma():
             self.modal.destroy()
             del self.tarjeta_key[:] #para evitar las acumulaciones d edatos
             del self.checks[:] #x2
-
+            self.confirmacion.set(False)
             self.vistaPrincipal()
         
-    def delete (self,key = str, index = int):
+    def delete (self, key = str, index = int):
         if self.alerta():
             self.alarma = ModeloAlarma(self.data)
             self.historial[index][key]["eliminado_alarma"] = True
             self.alarma.upHistorial(nuevo=False,old=self.historial)
             del self.tarjetas_diccionario[key]
             self.vistaPrincipal()
-
-    def allDelete(self, frame):
+        
+    def allDelete(self):
         if self.alerta():
-            print("Eliminar todo lo seleccionado")
+            self.alarma = ModeloAlarma(self.data)
             #aqui se hace el bucle para detectar si hay o no hay checks true, y cin este bucle se elimina , pero primero confirmamos si existe
             #TRue en algun check, si el caso no lo es se cancela
+            for key in self.checks_multiples:
+                var = self.checks_multiples[key][0].get()
+                if var:
+                    for dicc in self.historial:
+                        if dicc.get(key) is None: 
+                            continue
+                        
+                        dicc[key]["eliminado_alarma"] = var
 
-            
+                self.alarma.upHistorial(nuevo=False,old=self.historial)
+                del self.tarjetas_diccionario[key]
+        
+        self.checks_multiples.clear()
+        self.vistaPrincipal()
 
-            self.seleccionMultiple(frame=frame, confirm=False)
+    def status(self, key = str, index = int):
+        if self.alerta():
+            self.alarma = ModeloAlarma(self.data)
+            self.historial[index][key]["estatus_alarma"] = self.checks_status[key].get()
+            self.alarma.upHistorial(nuevo=False,old=self.historial)
+            self.vistaPrincipal()
 
     def clear(self):
         for widget in self.frame.winfo_children():
