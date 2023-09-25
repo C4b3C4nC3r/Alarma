@@ -82,8 +82,8 @@ class VistaAlarma():
 
         self.modal.title("Nueva Alarma")
         # Dimensiones deseadas de la self
-        ancho_ventana = 600
-        alto_ventana = 500
+        ancho_ventana = 550
+        alto_ventana = 300
 
         # Obtener las dimensiones de la pantalla
         ancho_pantalla = self.modal.winfo_screenwidth()
@@ -199,6 +199,7 @@ class VistaAlarma():
             ttk.Button(frame,text="Remover todo", command= self.allDelete).grid(column=2,row=0) #2
             ttk.Button(frame,text="Cancelar", 
                        command= lambda confirm = False, frame = frame : self.seleccionMultiple(frame=frame, confirm=confirm)).grid(column=3,row=0) #3
+
         else:
             if len(frame.winfo_children()) > 2:
                 frame.winfo_children()[3].destroy() #mayor a menor
@@ -213,9 +214,27 @@ class VistaAlarma():
 
             self.checks_multiples.clear()
 
-    def alerta(self)->bool:
-        return messagebox.askyesno(title="Alarma",message="Estas seguro de realizar esta accion?")
+        self.bloquearTarjeta(confirm=confirm)
+
+    def alerta(self,parent = None)->bool:
+        return messagebox.askyesno(title="Alarma",message="Estas seguro de realizar esta accion?", parent=self.frame if parent is None else parent )
+
+    def bloquearTarjeta(self, confirm = True):
         
+        tarjetas = self.tarjetas_diccionario
+        
+        for key in tarjetas:
+                
+            btns = tarjetas[key].winfo_children()[2].winfo_children()
+            check = tarjetas[key].winfo_children()[3]
+
+            btns[0].config(state = "disabled" if confirm else "normal")
+            btns[1].config(state = "disabled" if confirm else "normal")
+            check.config(state="disabled" if confirm else "normal")
+
+            
+            #ubicamos los elementos
+            
     def tarjetas(self,row = 0, col = 0, index = int ,key = str, diccionario = {}):
 
         tarjeta_frame = ttk.Frame(self.frame, borderwidth=2, relief="solid",width=50, height=80)
@@ -239,11 +258,10 @@ class VistaAlarma():
         check.grid(row=0, column=1, sticky="ne")  # Posicionar el check en la parte derecha superior
         self.checks_status[key] = var
 
-
         self.tarjetas_diccionario[key] = tarjeta_frame # tendra todo de tarjeta
 
     def save (self):
-        if self.alerta():
+        if self.alerta(self.modal):
             self.alarma = ModeloAlarma(self.data)
             self.alarma.elements() #recolectar elementos del modal
             alarma = self.alarma.save() #guardar en un diccionario
