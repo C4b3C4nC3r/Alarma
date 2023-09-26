@@ -21,7 +21,7 @@ class VistaAlarma():
         self.frame = frame
         self.tarjetas_diccionario = {}
         self.tarjeta_key = [] #ubicacion key e index de la tarjeta en el historial
-
+        
     def generacionVar(self)->dict:
         data = {}
         data["nombre_alarma"] = tk.StringVar()
@@ -78,6 +78,9 @@ class VistaAlarma():
             self.default()
 
     def vistaCrearAlarmas(self, nuevo = True): #modal para la creacion
+
+        del self.checks [:]
+        
         self.modal = tk.Toplevel(self.frame)
 
         self.modal.title("Nueva Alarma")
@@ -129,7 +132,7 @@ class VistaAlarma():
         cmb_m.grid(column=1,row=0)
 
         ttk.Label(frame_midd, text="Nombre Alarma").grid(column=0,row=0)
-        ttk.Entry(frame_midd, textvariable=self.data['nombre_alarma']).grid(column=1,row=0)
+        ttk.Entry(frame_midd, textvariable=self.data['nombre_alarma'] if not nuevo else self.data['nombre_alarma'].set('')).grid(column=1,row=0)
 
         ttk.Button(frame_end, text="Tono", command=self.seleccionarAudio).grid(row=0, column=0)
 
@@ -138,6 +141,9 @@ class VistaAlarma():
         cmb_posponer.current(0)
         cmb_posponer.grid(row=0,column=2)
 
+
+        if nuevo:
+            self.confirmacion.set(False) 
         #checks
         ttk.Checkbutton(
             frame_end,
@@ -154,6 +160,7 @@ class VistaAlarma():
                             ).grid(column=indice, row=2)
             
             self.checks.append(var)
+
         
         #btns
         ttk.Button(frame_btn,text="Guardar" if nuevo else "Actualizar", command=self.save if nuevo else self.update).grid(row=3,column=0)
@@ -308,7 +315,6 @@ class VistaAlarma():
             self.alarma.upHistorial(nuevo=False,old=self.historial)
             self.modal.destroy()
             del self.tarjeta_key[:] #para evitar las acumulaciones d edatos
-            del self.checks[:] #x2
             self.confirmacion.set(False)
             self.vistaPrincipal()
         
