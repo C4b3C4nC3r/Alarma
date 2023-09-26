@@ -15,6 +15,7 @@ class VistaAlarma():
         self.checks_multiples = {}
         self.checks_status = {}
         self.dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
+        self.posponer_list = [5,10,15,20,25,30]
         self.confirmacion = tk.BooleanVar() #este es que hace que se genere los checks
         self.data = self.generacionVar()
         self.historial = []
@@ -80,7 +81,9 @@ class VistaAlarma():
     def vistaCrearAlarmas(self, nuevo = True): #modal para la creacion
 
         del self.checks [:]
-        
+        if nuevo:
+            self.data = self.generacionVar()
+
         self.modal = tk.Toplevel(self.frame)
 
         self.modal.title("Nueva Alarma")
@@ -132,13 +135,13 @@ class VistaAlarma():
         cmb_m.grid(column=1,row=0)
 
         ttk.Label(frame_midd, text="Nombre Alarma").grid(column=0,row=0)
-        ttk.Entry(frame_midd, textvariable=self.data['nombre_alarma'] if not nuevo else self.data['nombre_alarma'].set('')).grid(column=1,row=0)
+        ttk.Entry(frame_midd, textvariable=self.data['nombre_alarma']).grid(column=1,row=0)
 
         ttk.Button(frame_end, text="Tono", command=self.seleccionarAudio).grid(row=0, column=0)
 
         ttk.Label(frame_end,text="Posponer").grid(row=0, column=1)
-        cmb_posponer = ttk.Combobox(frame_end,textvariable=self.data["tiempo_posponer"], values=[5,10,15,20,25,30])
-        cmb_posponer.current(0)
+        cmb_posponer = ttk.Combobox(frame_end,textvariable=self.data["tiempo_posponer"], values=self.posponer_list)
+        cmb_posponer.current(0 if nuevo else self.posponer_list.index(int(self.data["tiempo_posponer"].get())))
         cmb_posponer.grid(row=0,column=2)
 
 
@@ -285,7 +288,7 @@ class VistaAlarma():
 
             data = self.historial[index][key]
 
-            hora, minuto = data["tiempo_alarma"].split(" : ")
+            hora, minuto = data["tiempo_alarma"].split(":")
 
             self.data["nombre_alarma"].set(data["nombre_alarma"])
             self.data["hora_alarma"].set(int(hora))

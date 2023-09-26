@@ -3,6 +3,19 @@
 
 Version 4 de reloj...
 
+# Para tus configuracion personal
+
+usa pip freeze para guardar la lista de dependencias o requerimientos para la ejecucion del software
+``` pip freeze > requirements.txt ```
+
+# En el caso de ejecucion segundo plano(Fedora 38)
+
+No se puede interrumpir, en teoria debe de ser por los privilegios de usuario, en este caso, nopasa nada, solo tendriamos que matar el proceso
+
+ir a `monitor de sistema` en el apartado `Procesos`, y buscar python y al sobre poner el puntero veremos si es alarma.py o main.py, con eso le damos a kill o killer
+
+para acabar con el proceso
+
 # Configurarlo Windows 10 (intentalo en tu OS)
 
 Despues de clonarlo o descargar el repositorio, necesitamos tener todas las dependencias, la primera hay que instalar el entorno virtual:
