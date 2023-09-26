@@ -7,7 +7,12 @@ para el usario.
 """
 
 from module.gestor import GestorModulos
+from module.alarma.notificacion_alarma import NotificaionAlarma
 
 if __name__ == "__main__":
     app = GestorModulos()
     app.mainloop()
+
+    # alarm = NotificaionAlarma()
+    # notif = alarm.ventanaNotificacion()
+    # notif.mainloop()
