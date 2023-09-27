@@ -9,6 +9,9 @@ alarmas_to_execute = {}
 
 def execute_alarma_confirm ():
     global alarmas_to_execute
+    global execute_file
+
+    print(execute_file)
 
     while execute_file:
         notificacion =NotificaionAlarma()

@@ -25,19 +25,12 @@ def segundoPlanoAlarma():
 
 def main():
     print("inicando app y segundo plano")
-    alarma = segundoPlanoAlarma()
+    #alarma = segundoPlanoAlarma()
 
     app = GestorModulos()
     app.mainloop()
 
-    try:
-        while True:
-            pass
-    except KeyboardInterrupt:
-        # Maneja la interrupción del teclado (Ctrl+C)
-        print("Interrupción del teclado. Finalizando la aplicación... Espere que cierren los procesos")
-
-    alarma.join()
+    #alarma.join()
     #print("Finalizamos el segundo plano de alarma")
 
 

@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from module.alarma.vista_alarma import VistaAlarma
+from module.temporizador.vista_temporizador import VistaTemporizador
+
 
 class GestorModulos(tk.Tk):
     def __init__(self):
@@ -34,7 +36,12 @@ class GestorModulos(tk.Tk):
 
     def loadOpciones(self):
         ttk.Button(self.frame_opciones,text="Alarma",command=self.loadAlarma).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
+        ttk.Button(self.frame_opciones,text="Temporizador",command=self.loadTemporizador).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
     
     def loadAlarma(self):
         alarma = VistaAlarma(self.frame_contenido)        
         alarma.vistaPrincipal()
+
+    def loadTemporizador(self):
+        temporizador = VistaTemporizador(self.frame_contenido)        
+        temporizador.vistaPrincipal()

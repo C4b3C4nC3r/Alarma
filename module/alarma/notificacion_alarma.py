@@ -116,7 +116,7 @@ class NotificaionAlarma():
 
             #si hoy es el dia
 
-            dias_bool = diccionario[key]["repeticion_alarma"] #listado de bool de dias
+            dias_bool = diccionario[key]["repeticion_alarma"][0] #listado de bool de dias
 
             # Establecer la configuración regional en español
             locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
@@ -124,7 +124,7 @@ class NotificaionAlarma():
             fecha_actual = time.localtime()
             dia = time.strftime("%A",fecha_actual)
             
-            if dias_bool[0][dia]:
+            if dias_bool[dia]:
                 self.alarmas_ejecucion[key] = old[key] if key in old else diccionario[key]
             
             #si es la hora

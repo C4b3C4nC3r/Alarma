@@ -3,20 +3,16 @@ import json
 import time
 import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
-from module.alarma.modelo_alarma import ModeloAlarma
+from module.temporizador.modelo_temporizador import ModeloTemporizador
 
-class VistaAlarma():
+class VistaTemporizador():
 
     def __init__(self, frame = ttk.Frame):
         #configuracion ventana
         super().__init__()
         #vars
-        self.checks = [] #esperando a que le agregen los check
         self.checks_multiples = {}
         self.checks_status = {}
-        self.dias = ["lunes","martes", "miércoles","jueves","viernes","sábado","domingo"]
-        self.posponer_list = [5,10,15,20,25,30]
-        self.confirmacion = tk.BooleanVar() #este es que hace que se genere los checks
         self.data = self.generacionVar()
         self.historial = []
         self.frame = frame
@@ -25,16 +21,16 @@ class VistaAlarma():
         
     def generacionVar(self)->dict:
         data = {}
-        data["nombre_alarma"] = tk.StringVar()
-        data["hora_alarma"] = tk.StringVar()
-        data["minuto_alarma"] = tk.StringVar()
+        data["nombre_temporizador"] = tk.StringVar()
+        data["hora_temporizador"] = tk.StringVar()
+        data["segundo_temporizador"] = tk.StringVar()
+        data["minuto_temporizador"] = tk.StringVar()
         data["direccion_audio"] = tk.StringVar()  
-        data["tiempo_posponer"] = tk.StringVar()
         
         return data
     
     def busquedaHistorial(self):
-        dir = os.path.join("data/historial","historial_alarms.json")
+        dir = os.path.join("data/historial","historial_temporizador.json")
 
         try:
             with open (dir,"r") as file:
@@ -56,7 +52,7 @@ class VistaAlarma():
         for index, diccionario in enumerate(historial):
             key = list(diccionario.keys())[0]
 
-            if diccionario[key]["eliminado_alarma"]:
+            if diccionario[key]["eliminado_temporizador"]:
                 continue
 
             if col == 3:
@@ -70,7 +66,7 @@ class VistaAlarma():
         frame_btn = ttk.Frame(self.frame)
         frame_btn.grid(columnspan=2, row=row+1, column=0, pady=10)
 
-        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCrearAlarmas).grid(column=0,row=0) #0
+        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCreartemporizadors).grid(column=0,row=0) #0
         ttk.Button(frame_btn,text="Seleccion",command= lambda frame = frame_btn:self.seleccionMultiple(frame)).grid(column=1,row=0) #1
 
         #comprobar
@@ -78,18 +74,17 @@ class VistaAlarma():
 
             self.default()
 
-    def vistaCrearAlarmas(self, nuevo = True): #modal para la creacion
+    def vistaCreartemporizadors(self, nuevo = True): #modal para la creacion
 
-        del self.checks [:]
         if nuevo:
             self.data = self.generacionVar()
 
         self.modal = tk.Toplevel(self.frame)
 
-        self.modal.title("Nueva Alarma")
+        self.modal.title("Nueva Temporizador")
         # Dimensiones deseadas de la self
-        ancho_ventana = 550
-        alto_ventana = 300
+        ancho_ventana = 600
+        alto_ventana = 200
 
         # Obtener las dimensiones de la pantalla
         ancho_pantalla = self.modal.winfo_screenwidth()
@@ -118,59 +113,31 @@ class VistaAlarma():
         frame_btn = ttk.Frame(self.modal)
         frame_btn.grid(column=0,row=5, pady=10, padx=50)
 
-        # cmbbox h y m (self.data["hora_alarma"], self.data["minuto_alarma"]) #top
-        # entry name (self.data["nombre_alarma"]) #midd
-        # filedialog dir audio (self.data["direccion_audio"]) #end
-        # cmbboc posponer (self.data["tiempo_posponer"]) #end
-        # btn guardar y  btn cancelar #btn
-
-        cmb_h = ttk.Combobox(frame_top,values=[h for h in range(0,24)], textvariable=self.data['hora_alarma'])
+        cmb_h = ttk.Combobox(frame_top,values=[h for h in range(0,24)], textvariable=self.data['hora_temporizador'])
         if nuevo:
-            cmb_h.current(int(time.strftime("%H"))) 
+            cmb_h.current(0) 
         cmb_h.grid(column=0,row=0)
 
-        cmb_m = ttk.Combobox(frame_top,values=[m for m in range(0,60)], textvariable=self.data['minuto_alarma'])
+        cmb_m = ttk.Combobox(frame_top,values=[m for m in range(0,60)], textvariable=self.data['minuto_temporizador'])
         if nuevo:
-            cmb_m.current(int(time.strftime("%M")))
+            cmb_m.current(15)
         cmb_m.grid(column=1,row=0)
 
-        ttk.Label(frame_midd, text="Nombre Alarma").grid(column=0,row=0)
-        ttk.Entry(frame_midd, textvariable=self.data['nombre_alarma']).grid(column=1,row=0)
+        cmb_s = ttk.Combobox(frame_top,values=[s for s in range(0,60)], textvariable=self.data['segundo_temporizador'])
+        if nuevo:
+            cmb_s.current(0)
+        cmb_s.grid(column=2,row=0)
+
+        ttk.Label(frame_midd, text="Nombre temporizador").grid(column=0,row=0)
+        ttk.Entry(frame_midd, textvariable=self.data['nombre_temporizador']).grid(column=1,row=0)
 
         ttk.Button(frame_end, text="Tono", command=self.seleccionarAudio).grid(row=0, column=0)
-
-        ttk.Label(frame_end,text="Posponer").grid(row=0, column=1)
-        cmb_posponer = ttk.Combobox(frame_end,textvariable=self.data["tiempo_posponer"], values=self.posponer_list)
-        cmb_posponer.current(0 if nuevo else self.posponer_list.index(int(self.data["tiempo_posponer"].get())))
-        cmb_posponer.grid(row=0,column=2)
-
-
-        if nuevo:
-            self.confirmacion.set(False) 
-        #checks
-        ttk.Checkbutton(
-            frame_end,
-            text="Repeticion",
-            variable=self.confirmacion,
-            command= lambda : [var.set(False) for var in self.checks] if not self.confirmacion.get() else print("No hay confimacion")
-            ).grid(column=0, row=1) #si este false, pone false a todos
-
-        #checks de dias
-        for indice, dia in enumerate (self.dias):
-            var = tk.BooleanVar()
-            ttk.Checkbutton(frame_check, text=dia, variable=var, 
-                            command=lambda : self.confirmacion.set(True) if any([var.get() for var in self.checks]) else self.confirmacion.set(False)
-                            ).grid(column=indice, row=2)
-            
-            self.checks.append(var)
-
         
         #btns
         ttk.Button(frame_btn,text="Guardar" if nuevo else "Actualizar", command=self.save if nuevo else self.update).grid(row=3,column=0)
         ttk.Button(frame_btn,text="Cancelar", command= self.modal.destroy).grid(row=3,column=1)
 
         self.data["direccion_audio"].set('data/sounds/herta singing kururing.mp3')
-        self.data["checks"] = self.checks
 
         self.modal.grab_set()
 
@@ -191,8 +158,8 @@ class VistaAlarma():
         frame_label.grid(column=0,row=0,padx=(ancho_ventana // 4), pady=(alto_ventana // 4))
         frame_btn = ttk.Frame(self.frame)
         frame_btn.grid(column=0,row=1)
-        ttk.Label(frame_label, text="Hola no hay alarmas hasta el momento, por favor crea una alarma").grid(row=1,column=0)
-        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCrearAlarmas).grid(column=0,row=2) #0
+        ttk.Label(frame_label, text="Hola no hay temporizadors hasta el momento, por favor crea una temporizador").grid(row=1,column=0)
+        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCreartemporizadors).grid(column=0,row=2) #0
         #ttk.Button(frame_btn,text="Seleccion",command= lambda frame = frame_btn:self.seleccionMultiple(frame)).grid(column=1,row=2) #1
     
     def seleccionMultiple(self, frame, confirm = True):        
@@ -227,7 +194,7 @@ class VistaAlarma():
         self.bloquearTarjeta(confirm=confirm)
 
     def alerta(self,parent = None)->bool:
-        return messagebox.askyesno(title="Alarma",message="Estas seguro de realizar esta accion?", parent=self.frame if parent is None else parent )
+        return messagebox.askyesno(title="temporizador",message="Estas seguro de realizar esta accion?", parent=self.frame if parent is None else parent )
 
     def bloquearTarjeta(self, confirm = True):
         
@@ -251,9 +218,9 @@ class VistaAlarma():
         tarjeta_frame.grid(row=row,column=col, padx=10, pady=10)
 
         #contenido
-        tk.Label(tarjeta_frame,text=diccionario["nombre_alarma"]).grid(row=0,column=0,sticky="nw")
+        tk.Label(tarjeta_frame,text=diccionario["nombre_temporizador"]).grid(row=0,column=0,sticky="nw")
 
-        tk.Label(tarjeta_frame,text=diccionario["tiempo_alarma"]).grid(row=1,column=0, pady=(10,0))
+        tk.Label(tarjeta_frame,text=diccionario["tiempo_temporizador"]).grid(row=1,column=0, pady=(10,0))
 
         btn_frame = ttk.Frame(tarjeta_frame)
         btn_frame.grid(row=4,column=0)
@@ -263,7 +230,7 @@ class VistaAlarma():
         tk.Button(btn_frame,text="Eliminar", command=lambda key = key , index = index: self.delete(key = key, index=index)).grid(row=2,column=1,pady=(10,0))
 
         var = tk.BooleanVar()
-        var.set(diccionario["estatus_alarma"])
+        var.set(diccionario["estatus_temporizador"])
         check = ttk.Checkbutton(tarjeta_frame,text="Estado", variable=var, command=lambda key = key, index = index : self.status(key=key, index=index))
         check.grid(row=0, column=1, sticky="ne")  # Posicionar el check en la parte derecha superior
         self.checks_status[key] = var
@@ -272,11 +239,10 @@ class VistaAlarma():
 
     def save (self):
         if self.alerta(self.modal):
-            self.alarma = ModeloAlarma(self.data)
-            self.alarma.elements() #recolectar elementos del modal
-            alarma = self.alarma.save() #guardar en un diccionario
-            self.alarma.upHistorial(data=alarma,old=self.historial) #subir al historial
-            self.confirmacion.set(False) #check se pone false
+            self.temporizador = ModeloTemporizador(self.data)
+            self.temporizador.elements() #recolectar elementos del modal
+            temporizador = self.temporizador.save() #guardar en un diccionario
+            self.temporizador.upHistorial(data=temporizador,old=self.historial) #subir al historial
             self.vistaPrincipal()
 
     def edit (self,key = str,index = int):
@@ -288,50 +254,42 @@ class VistaAlarma():
 
             data = self.historial[index][key]
 
-            hora, minuto = data["tiempo_alarma"].split(":")
+            hora, minuto, segundo = data["tiempo_temporizador"].split(":")
 
-            self.data["nombre_alarma"].set(data["nombre_alarma"])
-            self.data["hora_alarma"].set(int(hora))
-            self.data["minuto_alarma"].set(int(minuto))
+            self.data["nombre_temporizador"].set(data["nombre_temporizador"])
+            self.data["hora_temporizador"].set(int(hora))
+            self.data["minuto_temporizador"].set(int(minuto))
+            self.data["segundo_temporizador"].set(int(segundo))
             self.data["direccion_audio"].set(data["direccion_audio"])
-            self.data["tiempo_posponer"].set(data["tiempo_posponer"])
 
-            self.vistaCrearAlarmas(nuevo=False)
+            self.vistaCreartemporizadors(nuevo=False)
             
-            dias = data["repeticion_alarma"][0] #dias en check
-            
-            for key, check in zip(dias, self.checks):
-                check.set(dias[key])
-
-            self.confirmacion.set(True) if any([var.get() for var in self.checks]) else self.confirmacion.set(False)
-
-            self.modal.title(f"Actualizar {data['nombre_alarma']}")
+            self.modal.title(f"Actualizar {data['nombre_temporizador']}")
 
     def update(self):
         if self.alerta():
 
-            self.alarma = ModeloAlarma(self.data)
+            self.temporizador = ModeloTemporizador(self.data)
             #modificar historial con los nuevos datos
-            self.alarma.elements()
-            dicc = self.alarma.save(nuevo=False)
+            self.temporizador.elements()
+            dicc = self.temporizador.save(nuevo=False)
             self.historial[self.tarjeta_key[1]][self.tarjeta_key[0]] = dicc
-            self.alarma.upHistorial(nuevo=False,old=self.historial)
+            self.temporizador.upHistorial(nuevo=False,old=self.historial)
             self.modal.destroy()
             del self.tarjeta_key[:] #para evitar las acumulaciones d edatos
-            self.confirmacion.set(False)
             self.vistaPrincipal()
         
     def delete (self, key = str, index = int):
         if self.alerta():
-            self.alarma = ModeloAlarma(self.data)
-            self.historial[index][key]["eliminado_alarma"] = True
-            self.alarma.upHistorial(nuevo=False,old=self.historial)
+            self.temporizador = ModeloTemporizador(self.data)
+            self.historial[index][key]["eliminado_temporizador"] = True
+            self.temporizador.upHistorial(nuevo=False,old=self.historial)
             del self.tarjetas_diccionario[key]
             self.vistaPrincipal()
         
     def allDelete(self):
         if self.alerta():
-            self.alarma = ModeloAlarma(self.data)
+            self.temporizador = ModeloTemporizador(self.data)
             #aqui se hace el bucle para detectar si hay o no hay checks true, y cin este bucle se elimina , pero primero confirmamos si existe
             #TRue en algun check, si el caso no lo es se cancela
             for key in self.checks_multiples:
@@ -341,9 +299,9 @@ class VistaAlarma():
                         if dicc.get(key) is None: 
                             continue
                         
-                        dicc[key]["eliminado_alarma"] = var
+                        dicc[key]["eliminado_temporizador"] = var
 
-                self.alarma.upHistorial(nuevo=False,old=self.historial)
+                self.temporizador.upHistorial(nuevo=False,old=self.historial)
                 del self.tarjetas_diccionario[key]
         
         self.checks_multiples.clear()
@@ -351,9 +309,9 @@ class VistaAlarma():
 
     def status(self, key = str, index = int):
         if self.alerta():
-            self.alarma = ModeloAlarma(self.data)
-            self.historial[index][key]["estatus_alarma"] = self.checks_status[key].get()
-            self.alarma.upHistorial(nuevo=False,old=self.historial)
+            self.temporizador = ModeloTemporizador(self.data)
+            self.historial[index][key]["estatus_temporizador"] = self.checks_status[key].get()
+            self.temporizador.upHistorial(nuevo=False,old=self.historial)
             self.vistaPrincipal()
 
     def clear(self):

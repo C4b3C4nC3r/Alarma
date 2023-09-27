@@ -27,7 +27,7 @@ class ModeloAlarma():
         self.eliminado_alarma = False  
 
     def interaccion_dias(self,checks = []) -> list : #
-        dias = ["lunes","martes", "miercoles","jueves","viernes","sabado","domingo"]
+        dias = ["lunes","martes", "miércoles","jueves","viernes","sábado","domingo"]
 
         return [{dia:var.get() for dia, var in zip(dias, checks)}]
     
