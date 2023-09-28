@@ -24,7 +24,7 @@ def segundoPlanoAlarma():
     return alarma_thread
 
 def main():
-    print("inicando app y segundo plano")
+    #print("inicando app y segundo plano")
     #alarma = segundoPlanoAlarma()
 
     app = GestorModulos()

@@ -15,7 +15,7 @@ class ModeloTemporizador():
         self.nombre_temporizador = self.data["nombre_temporizador"].get()
         self.tiempo_temporizador = f"{self.data['hora_temporizador'].get()}:{self.data['minuto_temporizador'].get()}:{self.data['segundo_temporizador'].get()}"   
         self.direccion_audio = self.data["direccion_audio"].get()
-        self.estatus_temporizador = True    
+        self.estatus_temporizador = False    
         self.eliminado_temporizador = False  
     
     def save (self, nuevo = True)-> dict: 

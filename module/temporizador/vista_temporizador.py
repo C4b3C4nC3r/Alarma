@@ -12,13 +12,14 @@ class VistaTemporizador():
         super().__init__()
         #vars
         self.checks_multiples = {}
-        self.checks_status = {}
+        self.temporizadores= {}
         self.data = self.generacionVar()
         self.historial = []
         self.frame = frame
         self.tarjetas_diccionario = {}
         self.tarjeta_key = [] #ubicacion key e index de la tarjeta en el historial
-        
+        self.go = False
+
     def generacionVar(self)->dict:
         data = {}
         data["nombre_temporizador"] = tk.StringVar()
@@ -66,7 +67,7 @@ class VistaTemporizador():
         frame_btn = ttk.Frame(self.frame)
         frame_btn.grid(columnspan=2, row=row+1, column=0, pady=10)
 
-        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCreartemporizadors).grid(column=0,row=0) #0
+        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCreartemporizador).grid(column=0,row=0) #0
         ttk.Button(frame_btn,text="Seleccion",command= lambda frame = frame_btn:self.seleccionMultiple(frame)).grid(column=1,row=0) #1
 
         #comprobar
@@ -74,7 +75,7 @@ class VistaTemporizador():
 
             self.default()
 
-    def vistaCreartemporizadors(self, nuevo = True): #modal para la creacion
+    def vistaCreartemporizador(self, nuevo = True): #modal para la creacion
 
         if nuevo:
             self.data = self.generacionVar()
@@ -158,8 +159,8 @@ class VistaTemporizador():
         frame_label.grid(column=0,row=0,padx=(ancho_ventana // 4), pady=(alto_ventana // 4))
         frame_btn = ttk.Frame(self.frame)
         frame_btn.grid(column=0,row=1)
-        ttk.Label(frame_label, text="Hola no hay temporizadors hasta el momento, por favor crea una temporizador").grid(row=1,column=0)
-        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCreartemporizadors).grid(column=0,row=2) #0
+        ttk.Label(frame_label, text="Hola no hay temporizador hasta el momento, por favor crea una temporizador").grid(row=1,column=0)
+        ttk.Button(frame_btn,text="Nuevo", command=self.vistaCreartemporizador).grid(column=0,row=2) #0
         #ttk.Button(frame_btn,text="Seleccion",command= lambda frame = frame_btn:self.seleccionMultiple(frame)).grid(column=1,row=2) #1
     
     def seleccionMultiple(self, frame, confirm = True):        
@@ -206,36 +207,35 @@ class VistaTemporizador():
             check = tarjetas[key].winfo_children()[3]
 
             btns[0].config(state = "disabled" if confirm else "normal")
-            btns[1].config(state = "disabled" if confirm else "normal")
+            #btns[1].config(state = "disabled" if confirm else "normal")
             check.config(state="disabled" if confirm else "normal")
 
             
             #ubicamos los elementos
             
     def tarjetas(self,row = 0, col = 0, index = int ,key = str, diccionario = {}):
-
+        var = tk.StringVar()
+        var.set(diccionario["tiempo_temporizador"])
+        
         tarjeta_frame = ttk.Frame(self.frame, borderwidth=2, relief="solid",width=50, height=80)
         tarjeta_frame.grid(row=row,column=col, padx=10, pady=10)
 
         #contenido
         tk.Label(tarjeta_frame,text=diccionario["nombre_temporizador"]).grid(row=0,column=0,sticky="nw")
 
-        tk.Label(tarjeta_frame,text=diccionario["tiempo_temporizador"]).grid(row=1,column=0, pady=(10,0))
+        tk.Label(tarjeta_frame,textvariable=var).grid(row=1,column=0, pady=(10,0))
 
         btn_frame = ttk.Frame(tarjeta_frame)
         btn_frame.grid(row=4,column=0)
 
+        #self.go = diccionario["estatus_temporizador"] #si se encunetra activo o no (osea si esta corriendo)
 
-        tk.Button(btn_frame,text="Editar", command=lambda key = key , index = index: self.edit(key = key, index = index)).grid(row=2,column=0,pady=(10,0))
+        #tk.Button(btn_frame,text="Stop" if self.go else "Play", command=lambda key = key , index = index, state = self.go: self.edit(key = key, index = index, state = state)).grid(row=2,column=0,pady=(10,0))
         tk.Button(btn_frame,text="Eliminar", command=lambda key = key , index = index: self.delete(key = key, index=index)).grid(row=2,column=1,pady=(10,0))
 
-        var = tk.BooleanVar()
-        var.set(diccionario["estatus_temporizador"])
-        check = ttk.Checkbutton(tarjeta_frame,text="Estado", variable=var, command=lambda key = key, index = index : self.status(key=key, index=index))
-        check.grid(row=0, column=1, sticky="ne")  # Posicionar el check en la parte derecha superior
-        self.checks_status[key] = var
-
         self.tarjetas_diccionario[key] = tarjeta_frame # tendra todo de tarjeta
+        self.temporizadores[key] = {"tarjeta":tarjeta_frame, "var_label":var}
+
 
     def save (self):
         if self.alerta(self.modal):
@@ -245,40 +245,50 @@ class VistaTemporizador():
             self.temporizador.upHistorial(data=temporizador,old=self.historial) #subir al historial
             self.vistaPrincipal()
 
-    def edit (self,key = str,index = int):
+    def edit (self,key = str,index = int, state = bool):
         if self.alerta():
-
-            #toca hacer un vista para este es lo mismo pero no s epuede reultizarse
-            self.tarjeta_key.append(key)
-            self.tarjeta_key.append(index)
 
             data = self.historial[index][key]
 
             hora, minuto, segundo = data["tiempo_temporizador"].split(":")
+                    
+            btns = self.tarjetas_diccionario[key].winfo_children()[2].winfo_children()
 
-            self.data["nombre_temporizador"].set(data["nombre_temporizador"])
-            self.data["hora_temporizador"].set(int(hora))
-            self.data["minuto_temporizador"].set(int(minuto))
-            self.data["segundo_temporizador"].set(int(segundo))
-            self.data["direccion_audio"].set(data["direccion_audio"])
 
-            self.vistaCreartemporizadors(nuevo=False)
+            #self.reloj(key = key)
+
+
+    def reloj(self, key = str):
+
+        #print("Iniciando cuenta")
+        #tarjeta = self.temporizadores[key]["tarjeta"]
+        text_var = self.temporizadores[key]["var_label"]
+
+        if self.go:
             
-            self.modal.title(f"Actualizar {data['nombre_temporizador']}")
+            tiempo = text_var.get()
+            h, m, s = tiempo.split(":")
 
+            tiempo_segundos = int(h) * 3600 + int(m) * 60 + int(s)
+            
+            if tiempo_segundos > 0:
+                tiempo_segundos-=1
+
+                #print(f"key : {key} = tiempo : {tiempo_segundos}")
+
+                n_hora = tiempo_segundos // 3600
+                n_minuto = (tiempo_segundos % 3600) // 60
+                n_segundo = tiempo_segundos % 60
+
+                tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
+                text_var.set(tiempo_formato)
+            
+            self.frame.after(1000, self.reloj, key)
+        
     def update(self):
         if self.alerta():
-
-            self.temporizador = ModeloTemporizador(self.data)
-            #modificar historial con los nuevos datos
-            self.temporizador.elements()
-            dicc = self.temporizador.save(nuevo=False)
-            self.historial[self.tarjeta_key[1]][self.tarjeta_key[0]] = dicc
-            self.temporizador.upHistorial(nuevo=False,old=self.historial)
-            self.modal.destroy()
-            del self.tarjeta_key[:] #para evitar las acumulaciones d edatos
-            self.vistaPrincipal()
-        
+            pass
+            
     def delete (self, key = str, index = int):
         if self.alerta():
             self.temporizador = ModeloTemporizador(self.data)
