@@ -18,7 +18,6 @@ class VistaTemporizador():
         self.frame = frame
         self.tarjetas_diccionario = {}
         self.tarjeta_key = [] #ubicacion key e index de la tarjeta en el historial
-        self.go = False
 
     def generacionVar(self)->dict:
         data = {}
@@ -228,13 +227,14 @@ class VistaTemporizador():
         btn_frame = ttk.Frame(tarjeta_frame)
         btn_frame.grid(row=4,column=0)
 
-        #self.go = diccionario["estatus_temporizador"] #si se encunetra activo o no (osea si esta corriendo)
+        var_btn = tk.BooleanVar()
+        var_btn.set(diccionario["estatus_temporizador"])
 
-        #tk.Button(btn_frame,text="Stop" if self.go else "Play", command=lambda key = key , index = index, state = self.go: self.edit(key = key, index = index, state = state)).grid(row=2,column=0,pady=(10,0))
+        tk.Button(btn_frame,text="Stop" if var_btn.get() else "Play", command=lambda key = key , index = index: self.edit(key = key, index = index)).grid(row=2,column=0,pady=(10,0))
         tk.Button(btn_frame,text="Eliminar", command=lambda key = key , index = index: self.delete(key = key, index=index)).grid(row=2,column=1,pady=(10,0))
 
         self.tarjetas_diccionario[key] = tarjeta_frame # tendra todo de tarjeta
-        self.temporizadores[key] = {"tarjeta":tarjeta_frame, "var_label":var}
+        self.temporizadores[key] = {"tarjeta":tarjeta_frame, "var_label":var,"var_btn" : var_btn}
 
 
     def save (self):
@@ -245,27 +245,34 @@ class VistaTemporizador():
             self.temporizador.upHistorial(data=temporizador,old=self.historial) #subir al historial
             self.vistaPrincipal()
 
-    def edit (self,key = str,index = int, state = bool):
+    def edit (self,key = str,index = int):
         if self.alerta():
+        
+            btns = self.tarjetas_diccionario[key].winfo_children()[2].winfo_children()[0]
 
-            data = self.historial[index][key]
+            var_btn = self.temporizadores[key]["var_btn"]
 
-            hora, minuto, segundo = data["tiempo_temporizador"].split(":")
-                    
-            btns = self.tarjetas_diccionario[key].winfo_children()[2].winfo_children()
+            var_btn.set(False if var_btn.get() else True) 
 
+            btns.config(text = "Stop" if var_btn.get() else "Play")
+            btns.config(command = lambda key = key , index = index: self.edit(key = key, index = index))
 
-            #self.reloj(key = key)
-
+            self.reloj(key=key)
 
     def reloj(self, key = str):
+      
 
-        #print("Iniciando cuenta")
-        #tarjeta = self.temporizadores[key]["tarjeta"]
         text_var = self.temporizadores[key]["var_label"]
+        var_btn = self.temporizadores[key]["var_btn"]
 
-        if self.go:
-            
+        print("=========================\n")
+        print(f"RELOJ TEMPORIZADOR {key}\n")
+        print("=========================\n")
+        print(f"{text_var.get()}\n")
+        print(f"En ejecucion : {var_btn.get()}")
+
+        if var_btn.get():            
+
             tiempo = text_var.get()
             h, m, s = tiempo.split(":")
 
@@ -282,7 +289,9 @@ class VistaTemporizador():
 
                 tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
                 text_var.set(tiempo_formato)
-            
+            else:
+                print("Fin del temporizador")
+
             self.frame.after(1000, self.reloj, key)
         
     def update(self):
