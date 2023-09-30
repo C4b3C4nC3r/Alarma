@@ -34,14 +34,15 @@ class GestorModulos(tk.Tk):
 
         self.loadOpciones()
 
+        self.alarma = VistaAlarma(self.frame_contenido)        
+        self.temporizador = VistaTemporizador(self.frame_contenido)        
+
     def loadOpciones(self):
         ttk.Button(self.frame_opciones,text="Alarma",command=self.loadAlarma).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
         ttk.Button(self.frame_opciones,text="Temporizador",command=self.loadTemporizador).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
     
     def loadAlarma(self):
-        alarma = VistaAlarma(self.frame_contenido)        
-        alarma.vistaPrincipal()
+        self.alarma.vistaPrincipal()
 
     def loadTemporizador(self):
-        temporizador = VistaTemporizador(self.frame_contenido)        
-        temporizador.vistaPrincipal()
+        self.temporizador.vistaPrincipal()

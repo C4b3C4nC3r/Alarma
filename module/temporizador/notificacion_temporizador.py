@@ -38,7 +38,10 @@ class NotificaionTemporizador():
 
     def ventanaNotificacion(self, key = str) -> Union[tk.Tk, bool]: #creara la ventana para noficar al usuario que su temporizador ya sono
         if not self.confirm_uso: 
-            temporizador = self.temporizador_ejecucion[key]
+            
+            if self.temporizador_ejecucion:
+                temporizador = self.temporizador_ejecucion[key]
+            
             fecha_actual = time.localtime()
             dia = time.strftime("%A",fecha_actual)
 
@@ -58,27 +61,17 @@ class NotificaionTemporizador():
             self.notif.geometry(f"{ancho_notif}x{alto_notif}+{x_pos}+{y_pos}")
 
             # Contenido de la self.notif
-            etiqueta = tk.Label(self.notif, text=f"{temporizador['tiempo_temporizador'] }\n {dia}")
+            etiqueta = tk.Label(self.notif, text=f"{temporizador['tiempo_temporizador_copy'] }\n {dia}")
             etiqueta.grid(row=0, column=0,padx=20, pady=20)
-            ttk.Button(self.notif,text=f"Pausar", command= lambda key = key : self.pausar(key=key)).grid(row=1, column=0)
-            ttk.Button(self.notif,text=f"Cancelar (hoy ya no sonara)", command= lambda key = key : self.cancelar(key=key)).grid(row=1, column=1)
+            ttk.Button(self.notif,text=f"Ok", command= lambda key = key : self.cancelar(key=key)).grid(row=1, column=1)
             
 
             self.confirm_uso = True
 
             return self.notif if self.confirm_uso else False
-        
-
-    def pausar(self, key = str):
-
-        print("pausa")
-        
-        self.sonido.stop()
-        self.notif.destroy()
 
     def cancelar(self, key = str):
-        del self.temporizador_ejecucion[key]
-
+        #more code
         self.sonido.stop()
         self.notif.destroy()
 
@@ -96,10 +89,12 @@ class NotificaionTemporizador():
                 print(f"La temporizador {key} está marcada como eliminada. Se omite.")
                 continue
             
-            if not diccionario[key]["estatus_temporizador"]:
-                print(f"La temporizador {key} está inactiva. Se omite.")
-                continue
+            # if not diccionario[key]["estatus_temporizador"]:
+            #     print(f"La temporizador {key} está inactiva. Se omite.")
+            #     continue
             
+            self.temporizador_ejecucion[key] = diccionario[key]
+
             print("temporizador")
 
 

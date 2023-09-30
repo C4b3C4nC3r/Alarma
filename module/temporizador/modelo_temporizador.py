@@ -27,6 +27,7 @@ class ModeloTemporizador():
         #anadir los datos
         data["nombre_temporizador"] = self.nombre_temporizador
         data["tiempo_temporizador"] = self.tiempo_temporizador
+        data["tiempo_temporizador_copy"] = self.tiempo_temporizador
         data["direccion_audio"] = self.direccion_audio
         data["estatus_temporizador"] = self.estatus_temporizador
         data["eliminado_temporizador"] = self.eliminado_temporizador

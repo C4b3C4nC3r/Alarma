@@ -4,6 +4,7 @@ import time
 import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
 from module.temporizador.modelo_temporizador import ModeloTemporizador
+from module.temporizador.notificacion_temporizador import NotificaionTemporizador
 
 class VistaTemporizador():
 
@@ -11,6 +12,7 @@ class VistaTemporizador():
         #configuracion ventana
         super().__init__()
         #vars
+
         self.checks_multiples = {}
         self.temporizadores= {}
         self.data = self.generacionVar()
@@ -151,7 +153,7 @@ class VistaTemporizador():
         self.clear()
         print("Limpieza de frame")
         
-        ancho_ventana = 800
+        ancho_ventana = 400
         alto_ventana = 600
         
         frame_label = ttk.Frame(self.frame)
@@ -203,11 +205,11 @@ class VistaTemporizador():
         for key in tarjetas:
                 
             btns = tarjetas[key].winfo_children()[2].winfo_children()
-            check = tarjetas[key].winfo_children()[3]
+            #check = tarjetas[key].winfo_children()[3]
 
             btns[0].config(state = "disabled" if confirm else "normal")
-            #btns[1].config(state = "disabled" if confirm else "normal")
-            check.config(state="disabled" if confirm else "normal")
+            btns[1].config(state = "disabled" if confirm else "normal")
+            #check.config(state="disabled" if confirm else "normal")
 
             
             #ubicamos los elementos
@@ -253,15 +255,15 @@ class VistaTemporizador():
             var_btn = self.temporizadores[key]["var_btn"]
 
             var_btn.set(False if var_btn.get() else True) 
-
+            
             btns.config(text = "Stop" if var_btn.get() else "Play")
             btns.config(command = lambda key = key , index = index: self.edit(key = key, index = index))
 
-            self.reloj(key=key)
+            self.update(index=index, key=key)
+            self.reloj(key=key,index=index)
 
-    def reloj(self, key = str):
+    def reloj(self, key = str, index = int):
       
-
         text_var = self.temporizadores[key]["var_label"]
         var_btn = self.temporizadores[key]["var_btn"]
 
@@ -281,22 +283,39 @@ class VistaTemporizador():
             if tiempo_segundos > 0:
                 tiempo_segundos-=1
 
-                #print(f"key : {key} = tiempo : {tiempo_segundos}")
-
                 n_hora = tiempo_segundos // 3600
                 n_minuto = (tiempo_segundos % 3600) // 60
                 n_segundo = tiempo_segundos % 60
 
                 tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
                 text_var.set(tiempo_formato)
-            else:
-                print("Fin del temporizador")
 
-            self.frame.after(1000, self.reloj, key)
+                self.update(index=index, key=key)
+
+            else:
+
+                notif = NotificaionTemporizador()
+                notif.confirm()
+                notificacion = notif.ventanaNotificacion(key)
+
+                if notificacion:
+                    notif.reproducirSonido(key=key)
+                    notificacion.mainloop()
+
+
+            self.frame.after(1000, self.reloj, key, index)
         
-    def update(self):
-        if self.alerta():
-            pass
+    def update(self, index = int, key = str):
+        self.temporizador = ModeloTemporizador(self.data)
+        
+        var_btn = self.temporizadores[key]["var_btn"]
+        text_var = self.temporizadores[key]["var_label"]
+
+        self.historial[index][key]["estatus_temporizador"] = var_btn.get()
+        self.historial[index][key]["tiempo_temporizador"] = text_var.get()
+        
+        self.temporizador.upHistorial(nuevo=False,old=self.historial)
+        #self.vistaPrincipal()
             
     def delete (self, key = str, index = int):
         if self.alerta():
@@ -324,6 +343,8 @@ class VistaTemporizador():
                 del self.tarjetas_diccionario[key]
         
         self.checks_multiples.clear()
+        self.clear_after()
+        
         self.vistaPrincipal()
 
     def status(self, key = str, index = int):
@@ -332,6 +353,12 @@ class VistaTemporizador():
             self.historial[index][key]["estatus_temporizador"] = self.checks_status[key].get()
             self.temporizador.upHistorial(nuevo=False,old=self.historial)
             self.vistaPrincipal()
+
+    def clear_after(self):
+        timers = self.frame.tk.splitlist(self.frame.tk.call("after", "info"))
+        # Cancela cada timer
+        for timer in timers:
+            self.frame.after_cancel(timer)
 
     def clear(self):
         for widget in self.frame.winfo_children():

@@ -184,7 +184,7 @@ class VistaAlarma():
         self.clear()
         print("Limpieza de frame")
         
-        ancho_ventana = 800
+        ancho_ventana =  600
         alto_ventana = 600
         
         frame_label = ttk.Frame(self.frame)
