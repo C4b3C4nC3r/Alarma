@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from module.alarma.vista_alarma import VistaAlarma
 from module.temporizador.vista_temporizador import VistaTemporizador
+from module.reloj.vista_reloj import VistaReloj
+from module.cronometro.vista_cronometro import VistaCronometro
 
 
 class GestorModulos(tk.Tk):
@@ -35,14 +37,25 @@ class GestorModulos(tk.Tk):
         self.loadOpciones()
 
         self.alarma = VistaAlarma(self.frame_contenido)        
-        self.temporizador = VistaTemporizador(self.frame_contenido)        
+        self.temporizador = VistaTemporizador(self.frame_contenido)
+        self.reloj = VistaReloj(self.frame_contenido)    
+        self.cronometro = VistaCronometro(self.frame_contenido)    
+
 
     def loadOpciones(self):
+        ttk.Button(self.frame_opciones,text="Reloj",command=self.loadReloj).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
         ttk.Button(self.frame_opciones,text="Alarma",command=self.loadAlarma).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
         ttk.Button(self.frame_opciones,text="Temporizador",command=self.loadTemporizador).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
+        ttk.Button(self.frame_opciones,text="Cronometro",command=self.loadCronometro).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo
     
     def loadAlarma(self):
         self.alarma.vistaPrincipal()
 
     def loadTemporizador(self):
         self.temporizador.vistaPrincipal()
+
+    def loadReloj(self):
+        self.reloj.vistaPrincipal()
+
+    def loadCronometro(self):
+        self.cronometro.vistaPrincipal()
