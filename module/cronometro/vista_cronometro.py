@@ -41,24 +41,24 @@ class VistaCronometro():
         #more code
         self.clear()
 
-        self.var.set(self.var.get() if self.activo else "00:00,00")
+        self.var.set(self.var.get() if self.activo else "00:00.00")
 
         ancho_ventana =  800
         alto_ventana = 600
         
         frame_label = ttk.Frame(self.frame)
-        frame_label.grid(column=0,row=0,padx=(ancho_ventana // 4), pady=(alto_ventana // 4))
+        frame_label.grid(column=0,row=0,padx=(ancho_ventana // 4), pady=(alto_ventana // 4),)
 
         self.reloj_label = ttk.Label(frame_label,textvariable=self.var,font=("Helvetica", 50))
         self.reloj_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         frame_btn = ttk.Frame(self.frame)
-        frame_btn.grid(column=0,row=1,padx=(ancho_ventana // 4), pady=(alto_ventana // 4))
+        frame_btn.grid(column=0,row=1)
 
         ttk.Button(frame_btn,text="Play", command=self.reloj).grid(row=0,column=1) #arranca el reloj
 
         frame_vueltas = ttk.Frame(self.frame)
-        frame_vueltas.grid(column=0,row=2,padx=(ancho_ventana // 4), pady=(alto_ventana // 4))
+        frame_vueltas.grid(column=0,row=2)
         
         #otros datos
         #label 1 -> vuelta
@@ -75,7 +75,22 @@ class VistaCronometro():
         pass
 
     def reloj(self):
-        pass
+        tiempo = self.var.get()
+
+        minuto, segundo_microsegundo = tiempo.split(":")
+        
+        tiempo_segundo = float(minuto) * 60 + float(segundo_microsegundo)
+
+        tiempo_segundo+=0.01
+
+        label_m = int(tiempo_segundo/60)
+        label_s = round(float(tiempo_segundo%60),2)
+
+        tiempo_formato = f"{label_m:02}:0{label_s}" if label_s < 10 else f"{label_m:02}:{label_s}"
+
+        self.var.set(tiempo_formato)
+
+        self.frame.after(10, self.reloj)
 
     def vuelta(self):
         pass
