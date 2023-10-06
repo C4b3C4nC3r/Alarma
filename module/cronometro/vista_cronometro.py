@@ -15,8 +15,9 @@ class VistaCronometro():
         self.frame =  frame
         self.reloj_label = None
         self.var = tk.StringVar()
+        self.var_vuelta = tk.StringVar()
         self.activo = False
-
+        self.vuelta_activo = False
     def generacionVar(self)->dict:
         data = {}
         data["nombre_cronometro"] = tk.StringVar()
@@ -52,8 +53,13 @@ class VistaCronometro():
         self.reloj_label = ttk.Label(frame_label,textvariable=self.var,font=("Helvetica", 50), width=7)
         self.reloj_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
+        frame_label_vuelta = ttk.Frame(self.frame)
+        frame_label_vuelta.grid(column=0,row=1,padx=(ancho_ventana // 4), pady=(alto_ventana // 4),)
+
+        self.reloj_label_vuelta = ttk.Label(frame_label_vuelta,textvariable=self.var_vuelta,font=("Helvetica", 10), width=2)
+
         frame_btn = ttk.Frame(self.frame)
-        frame_btn.grid(column=0,row=1)
+        frame_btn.grid(column=0,row=2)
 
         self.eliminar_btn = ttk.Button(frame_btn, state="disabled",text="Eliminar", command=self.eliminar)
         self.eliminar_btn.grid(row=0,column=1) #arranca el reloj
@@ -63,7 +69,7 @@ class VistaCronometro():
         self.vuelta_btn.grid(row=0,column=3) #arranca el reloj
 
         self.lista_vuelta = ttk.Frame(self.frame)
-        self.lista_vuelta.grid(column=0,row=2)
+        self.lista_vuelta.grid(column=0,row=3)
 
         self.busquedaHistorial()
         if self.historial:
@@ -75,6 +81,10 @@ class VistaCronometro():
     def eliminar(self):
         self.var.set("00:00.00")
         self.clear_after()
+
+        for widget in self.lista_vuelta.winfo_children():
+            widget.destroy()
+
         #eliminamos el historial
         del self.historial [:] 
         
@@ -105,15 +115,37 @@ class VistaCronometro():
 
         self.var.set(tiempo_formato)
 
+        if self.vuelta_activo:
+            #renderiza segudno reloj
+            self.reloj_label_vuelta.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+
+            #segundo reloj
+
+            tiempo = self.var_vuelta.get()
+
+            minuto, segundo_microsegundo = tiempo.split(":")
+            
+            tiempo_segundo = float(minuto) * 60 + float(segundo_microsegundo)
+
+            tiempo_segundo+=0.01
+
+            label_m = int(tiempo_segundo/60)
+            label_s = round(float(tiempo_segundo%60),2)
+
+            tiempo_formato = f"{label_m:02}:0{label_s}" if label_s < 10 else f"{label_m:02}:{label_s}"
+
+            self.var_vuelta.set(tiempo_formato)
+
         self.frame.after(10, self.reloj)
 
     def vuelta(self):
+        self.vuelta_activo = True
 
         tiempo = self.var.get()
-
+        tiempo_vuelta = self.var_vuelta.get()
         #guardamos el dato total
 
-        self.guardarVuelta(tiempo =tiempo)
+        self.guardarVuelta(tiempo = tiempo)
         self.busquedaHistorial()
 
         frame = self.lista_vuelta
@@ -126,23 +158,14 @@ class VistaCronometro():
         ttk.Label(frame, text="Total").grid(row=0, column=2)
 
         #filas con datos
+        index_reversed = 60 #limited 10 pero para practicdad lo pondre a 60
 
         for index, total in enumerate(self.historial):
-
-            ttk.Label(frame,text=f"{index:02}").grid(row=index+1, column=0)            
-            #matematica
-            index_tiempo_superior = index+1
-
-            if 0 <= index_tiempo_superior < len(self.historial):
-                tiempo_vuelta_sup = self.historial[index_tiempo_superior]
-                tiempo_vuelta_inf = self.historial[index]
+            ttk.Label(frame,text=f"{index:02}").grid(row=index_reversed-index,column=0)            
+            ttk.Label(frame,text=total if index == 0 else tiempo_vuelta).grid(row=index_reversed-index,column=1)
+            ttk.Label(frame,text=total).grid(row=index_reversed-index,column=2)
                 
-                print(tiempo_vuelta_sup)
-                print(tiempo_vuelta_inf)
-            
-            ttk.Label(frame,text=total).grid(row=index+1, column=1)
-            ttk.Label(frame,text=total).grid(row=index+1, column=2)
-
+        self.var_vuelta.set("00:00.00")
 
     def guardarVuelta(self, tiempo = str):
         
