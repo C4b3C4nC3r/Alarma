@@ -1,6 +1,5 @@
 import os
 import json
-from datetime import datetime
 import tkinter as tk
 from tkinter import ttk,messagebox
 
@@ -10,24 +9,43 @@ class VistaCronometro():
         #configuracion ventana
         super().__init__()
         #vars
-        self.data = self.generacionVar()
         self.historial = []
+        self.list_after = []
         self.frame =  frame
         self.reloj_label = None
         self.var = tk.StringVar()
         self.var_vuelta = tk.StringVar()
         self.activo = False
         self.vuelta_activo = False
-    def generacionVar(self)->dict:
-        data = {}
-        data["nombre_cronometro"] = tk.StringVar()
-        data["hora_cronometro"] = tk.StringVar()
-        data["segundo_cronometro"] = tk.StringVar()
-        data["minuto_cronometro"] = tk.StringVar()
-        data["microsegundo_cronometro"] = tk.StringVar()
+        self.generadorIdAfter()
 
-        return data
-    
+
+    def generadorIdAfter(self):
+        
+        dir = os.path.join("module","app.json")
+        app = []
+        dicc = {}
+        modulo = {}
+
+        dicc["id"] = "crono"
+        dicc["bool"] = False
+
+        modulo["cronometro"] = dicc
+
+        app.append(modulo)
+
+        if not self.activo:
+            try:
+                with open(dir, "w") as archivo:
+                    # Escribir la lista en formato JSON
+                    json.dump(app, archivo)
+            except FileNotFoundError:
+                with open (dir,"w") as file:
+                    json.dump(app, file, indent=2)
+
+            with open (dir,"r") as file:
+                self.list_after = json.load(file)
+
     def busquedaHistorial(self):
         dir = os.path.join("data/historial","historial_cronometro.json")
 
@@ -83,6 +101,7 @@ class VistaCronometro():
         self.var.set("00:00.00")
         self.var_vuelta.set("")
         self.vuelta_activo = False
+        self.activo = False
 
         #activamos la opcion
         self.play_btn.config(text="Play")
@@ -106,6 +125,9 @@ class VistaCronometro():
 
     def reloj(self):
         
+        self.activo = True
+
+
         #activamos la opcion
         self.play_btn.config(text="Stop")
         self.play_btn.config(command=self.stop_reloj)
@@ -217,9 +239,11 @@ class VistaCronometro():
 
 
     def clear_after(self):
+
         timers = self.frame.tk.splitlist(self.frame.tk.call("after", "info"))
         # Cancela cada timer
         for timer in timers:
+            #antes de cancelar hay que confirmar si el after o afters estan true o funcionales
             self.frame.after_cancel(timer)
 
     def clear(self):
