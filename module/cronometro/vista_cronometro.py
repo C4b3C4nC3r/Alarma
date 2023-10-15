@@ -44,32 +44,33 @@ class VistaCronometro():
 
         self.var.set(self.var.get() if self.activo else "00:00.00")
 
-        ancho_ventana =  800
+        ancho_ventana = 800
         alto_ventana = 600
-        
-        frame_label = ttk.Frame(self.frame)
-        frame_label.grid(column=0,row=0,padx=(ancho_ventana // 4), pady=(alto_ventana // 4),)
 
-        self.reloj_label = ttk.Label(frame_label,textvariable=self.var,font=("Helvetica", 50), width=7)
+        frame_label = ttk.Frame(self.frame)
+        frame_label.grid(row=0, column=0, padx=(ancho_ventana // 4), pady=(alto_ventana // 16))
+
+        self.reloj_label = ttk.Label(frame_label, textvariable=self.var, font=("Helvetica", 50), width=7)
         self.reloj_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         frame_label_vuelta = ttk.Frame(self.frame)
-        frame_label_vuelta.grid(column=0,row=1,padx=(ancho_ventana // 4), pady=(alto_ventana // 4),)
+        frame_label_vuelta.grid(row=2, column=0)
 
-        self.reloj_label_vuelta = ttk.Label(frame_label_vuelta,textvariable=self.var_vuelta,font=("Helvetica", 10), width=2)
+        self.reloj_label_vuelta = ttk.Label(frame_label_vuelta, textvariable=self.var_vuelta, font=("Helvetica", 10), width=8)
 
         frame_btn = ttk.Frame(self.frame)
-        frame_btn.grid(column=0,row=2)
+        frame_btn.grid(row=3, column=0)
 
-        self.eliminar_btn = ttk.Button(frame_btn, state="disabled",text="Eliminar", command=self.eliminar)
-        self.eliminar_btn.grid(row=0,column=1) #arranca el reloj
-        self.play_btn = ttk.Button(frame_btn,text="Play", command=self.reloj)
-        self.play_btn.grid(row=0,column=2) #arranca el reloj
+        self.eliminar_btn = ttk.Button(frame_btn, state="disabled", text="Eliminar", command=self.eliminar)
+        self.eliminar_btn.grid(row=0, column=1)  # arranca el reloj
+        self.play_btn = ttk.Button(frame_btn, text="Play", command=self.reloj)
+        self.play_btn.grid(row=0, column=2)  # arranca el reloj
         self.vuelta_btn = ttk.Button(frame_btn, state="disabled", text="Vuelta", command=self.vuelta)
-        self.vuelta_btn.grid(row=0,column=3) #arranca el reloj
+        self.vuelta_btn.grid(row=0, column=3)  # arranca el reloj
 
         self.lista_vuelta = ttk.Frame(self.frame)
-        self.lista_vuelta.grid(column=0,row=3)
+        self.lista_vuelta.grid(row=4, column=0)
+
 
         self.busquedaHistorial()
         if self.historial:
@@ -80,6 +81,15 @@ class VistaCronometro():
 
     def eliminar(self):
         self.var.set("00:00.00")
+        self.var_vuelta.set("")
+        self.vuelta_activo = False
+
+        #activamos la opcion
+        self.play_btn.config(text="Play")
+        self.play_btn.config(command=self.reloj)
+        self.eliminar_btn.config(state = "disabled")
+        self.vuelta_btn.config(state = "disabled")    
+
         self.clear_after()
 
         for widget in self.lista_vuelta.winfo_children():
@@ -97,6 +107,9 @@ class VistaCronometro():
     def reloj(self):
         
         #activamos la opcion
+        self.play_btn.config(text="Stop")
+        self.play_btn.config(command=self.stop_reloj)
+
         self.eliminar_btn.config(state = "normal")
         self.vuelta_btn.config(state = "normal")        
 
@@ -138,14 +151,23 @@ class VistaCronometro():
 
         self.frame.after(10, self.reloj)
 
+    def stop_reloj(self):
+        
+        self.clear_after()
+        self.play_btn.config(text="Play")
+        self.play_btn.config(command=self.reloj)
+        self.eliminar_btn.config(state = "disabled")
+        self.vuelta_btn.config(state = "disabled")    
+
+
     def vuelta(self):
         self.vuelta_activo = True
 
         tiempo = self.var.get()
         tiempo_vuelta = self.var_vuelta.get()
-        #guardamos el dato total
 
-        self.guardarVuelta(tiempo = tiempo)
+        #guardamos el dato total
+        self.guardarVuelta(tiempo = tiempo_vuelta if tiempo_vuelta else tiempo)
         self.busquedaHistorial()
 
         frame = self.lista_vuelta
@@ -159,12 +181,28 @@ class VistaCronometro():
 
         #filas con datos
         index_reversed = 60 #limited 10 pero para practicdad lo pondre a 60
+        tiempo_total = 0.0
 
         for index, total in enumerate(self.historial):
+            
+            minuto, segundo_microsegundo = total.split(":")
+            
+            tiempo_segundo = float(minuto) * 60 + float(segundo_microsegundo)
+
+            tiempo_total+= tiempo_segundo
+
+            label_m = int(tiempo_total/60)
+            label_s = round(float(tiempo_total%60),2)
+
+            tiempo_formato = f"{label_m:02}:0{label_s}" if label_s < 10 else f"{label_m:02}:{label_s}"
+
             ttk.Label(frame,text=f"{index:02}").grid(row=index_reversed-index,column=0)            
-            ttk.Label(frame,text=total if index == 0 else tiempo_vuelta).grid(row=index_reversed-index,column=1)
-            ttk.Label(frame,text=total).grid(row=index_reversed-index,column=2)
-                
+            ttk.Label(frame,text=total).grid(row=index_reversed-index,column=1)
+            ttk.Label(frame,text=tiempo_formato).grid(row=index_reversed-index,column=2)
+            
+            print(total)
+
+
         self.var_vuelta.set("00:00.00")
 
     def guardarVuelta(self, tiempo = str):
