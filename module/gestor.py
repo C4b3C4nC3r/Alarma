@@ -39,8 +39,7 @@ class GestorModulos(tk.Tk):
         self.alarma = VistaAlarma(self.frame_contenido)        
         self.temporizador = VistaTemporizador(self.frame_contenido)
         self.reloj = VistaReloj(self.frame_contenido)    
-        self.cronometro = VistaCronometro(self.frame_contenido)    
-
+        self.cronometro = VistaCronometro(self.frame_contenido)
 
     def loadOpciones(self):
         ttk.Button(self.frame_opciones,text="Reloj",command=self.loadReloj).grid(padx=10, pady=10) #ahi se configuran mas tarde esto anade mas codigo

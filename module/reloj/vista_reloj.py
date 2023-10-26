@@ -12,10 +12,11 @@ class VistaReloj():
         self.frame = frame
         self.reloj_label = None
         self.var = tk.StringVar()
+        self.task = {}
 
     def vistaPrincipal(self): #tarjetas
         self.clear()
-        self.clear_after()
+        self.clear_after(self.reloj)
 
         locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
 
@@ -49,6 +50,10 @@ class VistaReloj():
 
         self.reloj()
 
+    def schedule_task(self, funcion, tiempo):
+        task_id = self.frame.after(tiempo, funcion)
+        self.task[funcion] = task_id
+
     def reloj(self):
 
         tiempo = self.var.get()
@@ -66,13 +71,13 @@ class VistaReloj():
         tiempo_formato = f"{n_hora:02d}:{n_minuto:02d}:{n_segundo:02d}"
         self.var.set(tiempo_formato)
 
-        self.frame.after(1000, self.reloj)
-        
-    def clear_after(self):
-        timers = self.frame.tk.splitlist(self.frame.tk.call("after", "info"))
-        # Cancela cada timer
-        for timer in timers:
-            self.frame.after_cancel(timer)
+        self.schedule_task(self.reloj,1000)
+    
+    def clear_after(self, funcion):    
+        if funcion in self.task:
+            task_id = self.task[funcion]
+            self.frame.after_cancel(task_id)
+            del self.task[funcion]
 
     def clear(self):
         for widget in self.frame.winfo_children():

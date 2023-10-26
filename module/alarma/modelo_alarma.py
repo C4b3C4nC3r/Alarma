@@ -18,8 +18,11 @@ class ModeloAlarma():
 
     def elements(self):
 
+        h = self.data['hora_alarma'].get()
+        m = self.data['minuto_alarma'].get()
+
         self.nombre_alarma = self.data["nombre_alarma"].get()
-        self.tiempo_alarma = f"{self.data['hora_alarma'].get()}:{self.data['minuto_alarma'].get()}"   
+        self.tiempo_alarma = f"{h:02}:0{m}" if int(m) < 10 else f"{h:02}:{m}"   
         self.tiempo_posponer = self.data["tiempo_posponer"].get()
         self.direccion_audio = self.data["direccion_audio"].get()
         self.repeticion_alarma =  self.interaccion_dias(self.data["checks"]) # boolvars que se agregan al check repeticion

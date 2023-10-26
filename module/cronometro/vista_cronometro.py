@@ -17,34 +17,7 @@ class VistaCronometro():
         self.var_vuelta = tk.StringVar()
         self.activo = False
         self.vuelta_activo = False
-        self.generadorIdAfter()
-
-
-    def generadorIdAfter(self):
-        
-        dir = os.path.join("module","app.json")
-        app = []
-        dicc = {}
-        modulo = {}
-
-        dicc["id"] = "crono"
-        dicc["bool"] = False
-
-        modulo["cronometro"] = dicc
-
-        app.append(modulo)
-
-        if not self.activo:
-            try:
-                with open(dir, "w") as archivo:
-                    # Escribir la lista en formato JSON
-                    json.dump(app, archivo)
-            except FileNotFoundError:
-                with open (dir,"w") as file:
-                    json.dump(app, file, indent=2)
-
-            with open (dir,"r") as file:
-                self.list_after = json.load(file)
+        self.task = {}
 
     def busquedaHistorial(self):
         dir = os.path.join("data/historial","historial_cronometro.json")
@@ -109,7 +82,7 @@ class VistaCronometro():
         self.eliminar_btn.config(state = "disabled")
         self.vuelta_btn.config(state = "disabled")    
 
-        self.clear_after()
+        self.clear_after(self.reloj)
 
         for widget in self.lista_vuelta.winfo_children():
             widget.destroy()
@@ -123,11 +96,13 @@ class VistaCronometro():
             # Escribir la lista en formato JSON
             json.dump([], archivo)
 
+    def schedule_task(self, funcion, tiempo):
+        task_id = self.frame.after(tiempo, funcion)
+        self.task[funcion] = task_id
+
     def reloj(self):
         
         self.activo = True
-
-
         #activamos la opcion
         self.play_btn.config(text="Stop")
         self.play_btn.config(command=self.stop_reloj)
@@ -171,11 +146,11 @@ class VistaCronometro():
 
             self.var_vuelta.set(tiempo_formato)
 
-        self.frame.after(10, self.reloj)
+        self.schedule_task(self.reloj,10)
 
     def stop_reloj(self):
         
-        self.clear_after()
+        self.clear_after(self.reloj)
         self.play_btn.config(text="Play")
         self.play_btn.config(command=self.reloj)
         self.eliminar_btn.config(state = "disabled")
@@ -238,13 +213,20 @@ class VistaCronometro():
             json.dump(self.historial, archivo)
 
 
-    def clear_after(self):
+    def clear_after(self, funcion):
+        
+        if funcion in self.task:
+            task_id = self.task[funcion]
+            self.frame.after_cancel(task_id)
+            del self.task[funcion]
 
-        timers = self.frame.tk.splitlist(self.frame.tk.call("after", "info"))
+        #timers = self.frame.tk.splitlist(self.frame.tk.call("after", "info"))
         # Cancela cada timer
-        for timer in timers:
+        #for timer in timers:
             #antes de cancelar hay que confirmar si el after o afters estan true o funcionales
-            self.frame.after_cancel(timer)
+        #    self.frame.after_cancel(timer)
+
+
 
     def clear(self):
         for widget in self.frame.winfo_children():
