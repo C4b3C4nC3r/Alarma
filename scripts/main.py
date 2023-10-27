@@ -25,12 +25,12 @@ def segundoPlanoAlarma():
 
 def main():
     #print("inicando app y segundo plano")
-    #alarma = segundoPlanoAlarma()
+    alarma = segundoPlanoAlarma()
 
     app = GestorModulos()
     app.mainloop()
 
-    #alarma.join()
+    alarma.join()
     #print("Finalizamos el segundo plano de alarma")
 
 

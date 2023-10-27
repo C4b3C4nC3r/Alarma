@@ -269,9 +269,9 @@ class VistaTemporizador():
 
         print("=========================\n")
         print(f"RELOJ TEMPORIZADOR {key}\n")
-        print("=========================\n")
-        print(f"{text_var.get()}\n")
-        print(f"En ejecucion : {var_btn.get()}")
+        # print("=========================\n")
+        # print(f"{text_var.get()}\n")
+        # print(f"En ejecucion : {var_btn.get()}")
 
         if var_btn.get():            
 
@@ -297,12 +297,15 @@ class VistaTemporizador():
                 notif = NotificaionTemporizador()
                 notif.confirm()
                 notificacion = notif.ventanaNotificacion(key)
+                dicc = self.historial[index][key]
+                print(dicc["tiempo_temporizador_copy"])
+                text_var.set(dicc["tiempo_temporizador_copy"])
 
                 if notificacion:
                     notif.reproducirSonido(key=key)
                     notificacion.mainloop()
-
-
+                
+                
             self.frame.after(1000, self.reloj, key, index)
         
     def update(self, index = int, key = str):

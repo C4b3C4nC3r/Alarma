@@ -13,7 +13,7 @@ def execute_alarma_confirm ():
     print(execute_file)
 
     while execute_file:
-        notificacion =NotificaionAlarma()
+        notificacion = NotificaionAlarma()
         notificacion.confirm(old=alarmas_to_execute)
         #aqui estan las alarmas dehoy 
 
@@ -35,14 +35,12 @@ def execute_alarma_confirm ():
 
                         alarmas_to_execute  = alarmas
             
-                    print(f"Alarmas que cumplen la condicion del dia son {len(alarmas_to_execute)}")
-
+                    
             else:
                 if hora_actual == hora_alarma:
-                    print("coincide solo con la hora, debe de esperar a que coincida con esta")
                     continue
             
-        time.sleep(30) #cada 30 ticks
+        time.sleep(55) #cada 30 ticks
 
 def stop_execute_alarma_confirm(signal, frame):
     global execute_file

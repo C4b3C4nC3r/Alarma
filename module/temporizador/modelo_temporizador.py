@@ -12,8 +12,12 @@ class ModeloTemporizador():
 
     def elements(self):
 
+        h = f"0{self.data['hora_temporizador'].get()}" if int(self.data['hora_temporizador'].get()) < 10 else self.data['hora_temporizador'].get()
+        m = f"0{self.data['minuto_temporizador'].get()}" if int(self.data['minuto_temporizador'].get()) < 10 else self.data['minuto_temporizador'].get()
+        s = f"0{self.data['segundo_temporizador'].get()}" if int(self.data['segundo_temporizador'].get()) < 10 else self.data['segundo_temporizador'].get()
+
         self.nombre_temporizador = self.data["nombre_temporizador"].get()
-        self.tiempo_temporizador = f"{self.data['hora_temporizador'].get()}:{self.data['minuto_temporizador'].get()}:{self.data['segundo_temporizador'].get()}"   
+        self.tiempo_temporizador = f"{h:02}:{m:02}:{s:02}"  
         self.direccion_audio = self.data["direccion_audio"].get()
         self.estatus_temporizador = False    
         self.eliminado_temporizador = False  

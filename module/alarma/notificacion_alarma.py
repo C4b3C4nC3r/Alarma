@@ -105,11 +105,9 @@ class NotificaionAlarma():
             key = list(diccionario.keys())[0]
 
             if diccionario[key]["eliminado_alarma"]:
-                print(f"La alarma {key} está marcada como eliminada. Se omite.")
                 continue
             
             if not diccionario[key]["estatus_alarma"]:
-                print(f"La alarma {key} está inactiva. Se omite.")
                 continue
             
             #condicion
